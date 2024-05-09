@@ -9,13 +9,13 @@ const Navbar = () => {
 
     const navigationLogged = [
         { title: "Inicio", path: "/" },
-        { title: "Nuevo post", path: "/newPost" },
-        { title: "My perfil", path: "/ourCustomers" }
+        { title: "Nuevo post", path: "/new-post" },
+        { title: "My perfil", path: "/our-customers" }
     ];
     const navigationMain = [
         { title: "Inicio", path: "/" },
-        { title: "Iniciar Sesion", path: "/logIn" },
-        { title: "Registrarse", path: "/signUp" }
+        { title: "Iniciar Sesion", path: "/log-in" },
+        { title: "Registrarse", path: "/sign-up" }
     ];
 
     async function updateLoggedUser() {

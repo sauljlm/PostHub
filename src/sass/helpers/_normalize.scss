@@ -66,6 +66,10 @@ hr {
  * 2. Correct the odd `em` font sizing in all browsers.
  */
 
+p {
+  margin: 0;
+}
+
 pre {
   font-family: monospace, monospace; /* 1 */
   font-size: 1em; /* 2 */
