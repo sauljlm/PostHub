@@ -51,7 +51,7 @@ label {
 	transition: 0.5s;
 }
 
-.form__item{  
+.form__item {  
 	background-color: #eee;
 	border-radius: 5px;
 	border: none;
@@ -89,7 +89,7 @@ label {
 	width: 100%;
 }
 
-.form__item-cont-file input {
+.form__item-file input {
 	background-color: #d1ccc0;
 	border-radius: 5px;
 	cursor: pointer;
@@ -97,6 +97,20 @@ label {
 	margin-top: 20px;
 	outline: none;
 	width: 100%;
+}
+
+.form__item-file--active {
+    width: 200px;
+    height: 200px;
+    background-Size: cover;
+    background-Position: center;
+}
+
+.form__item-file-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
 }
 
 ::-webkit-file-upload-button {
@@ -122,6 +136,13 @@ label {
 	height: 300px;
 	margin: 0 auto;
 	width: 534px;
+}
+
+.password-icon-container {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    padding-bottom: 50px;
 }
 
 @media (max-width: 768px) {
