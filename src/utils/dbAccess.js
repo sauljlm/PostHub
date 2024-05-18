@@ -1,50 +1,78 @@
 import Swal from 'sweetalert2';
 class DBAccess {
-  collectionsReducer;
-  collectionReference;
+	collectionsReducer;
+	collectionReference;
 
-  constructor() {
-    this.url = 'http://localhost:8080';
-  }
+	constructor() {
+		this.url = 'http://localhost:8080';
+	}
 
-  getPosts = async () => {
-    await this.updateData();
-		const data = await JSON.parse(window.localStorage.getItem('postsData'));
-		return data;
-  };
+	getPosts = async () => {
+		await this.updateData();
+			const data = await JSON.parse(window.localStorage.getItem('postsData'));
+			return data;
+	};
 
-  updateData = async () => {
-    await fetch(`${this.url}/posts/get-posts`)
+	updateData = async () => {
+		await fetch(`${this.url}/posts/get-posts`)
 			.then(response => response.json())
 			.then(data => window.localStorage.setItem('postsData', JSON.stringify(data)));
 		await fetch(`${this.url}/users/get-users`)
 			.then(response => response.json())
 			.then(data => window.localStorage.setItem('usersData', JSON.stringify(data)));
-  };
+	};
 
-  updateLoggedUser = async (userdata) => {
-    await window.sessionStorage.setItem('loggedUser', JSON.stringify(userdata));
-  };
+	updateLoggedUser = async (userdata) => {
+		await window.sessionStorage.setItem('loggedUser', JSON.stringify(userdata));
+	};
 
-  getLoggedUser = async () => {
-    const user = await JSON.parse(window.sessionStorage.getItem('loggedUser'));
-		return user;
-  };
+	getLoggedUser = async () => {
+		const user = await JSON.parse(window.sessionStorage.getItem('loggedUser'));
+			return user;
+	};
 
-  getUserByEmail = async (email) => {
-    let currentUser = false;
-		let usersData = await JSON.parse(window.localStorage.getItem('usersData'));
-		usersData.forEach(element => {
-			if (element.userEmail == email) {
-				currentUser = element
+	/*
+	getUserByEmail = async (email) => {
+		let currentUser = false;
+			let usersData = await JSON.parse(window.localStorage.getItem('usersData'));
+			usersData.forEach(element => {
+				if (element.userEmail == email) {
+					currentUser = element
+				}
+			});
+		
+			return currentUser;
+	};
+	*/
+
+	getUserByEmail = async (email) => {
+		try {
+			const response = await fetch(`${this.url}/users/get-user-by-email/${email}`);
+			if (!response.ok) {
+				throw new Error('Error al obtener el usuario por correo electrónico');
 			}
-		});
-	
-		return currentUser;
-  };
+			return await response.json();
+		} catch (error) {
+			console.error(error);
+			// Manejar el error
+		}
+	};
 
-  logIn = async (userData) => {
-    await fetch(`${this.url}/users/log-in`, {
+	getUserByUsername = async (userName) => {
+		try {
+			const response = await fetch(`${this.url}/users/get-user-by-username/${userName}`);
+			if (!response.ok) {
+				throw new Error('Error al obtener el usuario por nombre de usuario');
+			}
+			return await response.json();
+		} catch (error) {
+			console.error(error);
+			// Manejar el error
+		}
+	};
+
+	logIn = async (userData) => {
+		await fetch(`${this.url}/users/log-in`, {
 			method: 'POST',
 			body: userData
 		})
@@ -66,10 +94,11 @@ class DBAccess {
 				})
 			}
 		})
-  };
+	};
 
-  createNewUser = async (newUser) => {
-    await fetch(`${this.url}/users/new-user`, {
+	createNewUser = async (newUser) => {
+		console.log(newUser);
+		await fetch(`${this.url}/users/new-user`, {
 			method: "POST",
 			body: newUser
 		})
@@ -84,15 +113,15 @@ class DBAccess {
 			} else {
 				Swal.fire({
 					'icon': 'success',
-					'title': 'El usuario se publico con éxito',
+					'title': 'El usuario se publicó con éxito',
 					'confirmButtonText': 'Entendido'
 				})
 			}
 		})
-  };
+	};
 
-  createNewPost = async (newPost) => {
-    await fetch(`${this.url}/posts/new-post`, {
+	createNewPost = async (newPost) => {
+		await fetch(`${this.url}/posts/new-post`, {
 			method: "POST",
 			body: newPost
 		})
@@ -112,10 +141,10 @@ class DBAccess {
 				})
 			}
 		})
-  };
+	};
 
-  updatePost = async (id, postData) => {
-    await fetch(`${this.url}/posts/update-post/${id}`, {
+	updatePost = async (id, postData) => {
+		await fetch(`${this.url}/posts/update-post/${id}`, {
 			headers: {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json'
@@ -139,10 +168,10 @@ class DBAccess {
 				})
 			}
 		})
-  };
+	};
 
-  deletePost = async (id) => {
-    await fetch(`${this.url}/posts/delete-post/${id}`, {
+	deletePost = async (id) => {
+		await fetch(`${this.url}/posts/delete-post/${id}`, {
 			headers: {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json'
@@ -165,7 +194,7 @@ class DBAccess {
 				})
 			}
 		})
-  };
+	};
 }
 
 export default DBAccess;
