@@ -48,6 +48,9 @@ class DBAccess {
 	getUserByEmail = async (email) => {
 		try {
 			const response = await fetch(`${this.url}/users/get-user-by-email/${email}`);
+			if (response.status === 404) {
+				return null; // Usuario no encontrado
+			}
 			if (!response.ok) {
 				throw new Error('Error al obtener el usuario por correo electrónico');
 			}
@@ -61,6 +64,9 @@ class DBAccess {
 	getUserByUsername = async (userName) => {
 		try {
 			const response = await fetch(`${this.url}/users/get-user-by-username/${userName}`);
+			if (response.status === 404) {
+				return null; // Usuario no encontrado
+			}
 			if (!response.ok) {
 				throw new Error('Error al obtener el usuario por nombre de usuario');
 			}

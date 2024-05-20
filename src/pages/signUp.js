@@ -5,23 +5,26 @@ import DBAccess from "../utils/dbAccess";
 export default () => {
     const usersDataDB = new DBAccess();
 
-    const [userName, setUserName] = useState("");
-    const [name, setName] = useState("");
-    const [bio, setBio] = useState("");
-    const [email, setEmail] = useState("");
-    const [gender, setGender] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [birthDate, setBirthDate] = useState("");
-    const [file, setFile] = useState("");
-    const [userType, setUserType] = useState("User");
-    const [previewImage, setPreviewImage] = useState(null);
+    const [userData, serUserData] = useState({
+        userName: "",
+        name: "",
+        bio: "",
+        email: "",
+        gender: "",
+        password: "",
+        confirmPassword: "",
+        birthDate: "",
+        file: "",
+        userType: "User"
+    })
+    const [errors, setErrors] = useState({});
 
+    const [previewImage, setPreviewImage] = useState(null);
     const [activeView, setActiveView] = useState(1);
 
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
-        setFile(selectedFile);
+        serUserData({...userData, file: selectedFile})
 
         if (selectedFile) {
             const reader = new FileReader();
@@ -32,29 +35,23 @@ export default () => {
         }
     };
 
-    const validateExistingEmail = async (email) => {
+    const validateAvailableEmail = async (email) => {
         try {
             const user = await usersDataDB.getUserByEmail(email);
-            if (user) {
-                console.log('Usuario encontrado:', user);
-            } else {
-                console.log('Usuario no encontrado');
-            }
+            return user === null; // Retorna true si no existe el usuario, false si existe
         } catch (error) {
             console.error('Error al obtener el usuario por correo electrónico:', error);
+            return false;
         }
     }
 
-    const validateExistingUserName = async (userName) => {
+    const validateAvailableUserName = async (userName) => {
         try {
             const user = await usersDataDB.getUserByUsername(userName);
-            if (user) {
-                console.log('Usuario encontrado:', user);
-            } else {
-                console.log('Usuario no encontrado');
-            }
+            return user === null; // Retorna true si no existe el usuario, false si existe
         } catch (error) {
             console.error('Error al obtener el usuario por nombre de usuario:', error);
+            return false;
         }
     };
 
@@ -76,39 +73,67 @@ export default () => {
         return valid;
     };
 
+    /*
     const validateForm = () => {
-        validateName(name);
-        validateEmail(email);
-        validatePassword(password);
+        validateName(userData.name);
+        validateEmail(userData.email);
+        validatePassword(userData.password);
     };
+    */
 
     const saveData = async () => {
-        if (validateForm()) {
-            const formData = new FormData();
-            formData.append("userName", userName);
-            formData.append("name", name);
-            formData.append("bio", bio);
-            formData.append("email", email);
-            formData.append("gender", gender);
-            formData.append("password", password);
-            formData.append("confirmPassword", confirmPassword);
-            formData.append("birthDate", birthDate);
-            formData.append("file", file);
-            formData.append("userType", userType);
-            formData.append("metaData", "stuff");
+        const formData = new FormData();
+
+        Object.keys(userData).forEach(key => {
+            formData.append(key, userData[key]);
+        });
     
-            await usersDataDB.createNewUser(formData);
-        } else {
-            alert("check the form")
-        }
+        await usersDataDB.createNewUser(formData);
     };
+
+    const validateForm1 = async () => {
+        let formErrors = {};
+
+        const isUserNameAvailable = await validateAvailableUserName(userData.userName);
+        if (!isUserNameAvailable) {
+            formErrors.userName = 'Nombre de usuario ya registrado';
+        }
+        if (!userData.userName.trim()) {
+            formErrors.userName = 'Nombre de usuario no puede estar vacío';
+        }
+        if (!validateName(userData.name) || !userData.name.trim()) {
+            formErrors.name = 'Nombre inválido';
+        }
+        if (!validateEmail(userData.email)) {
+            formErrors.email = 'Correo electrónico inválido';
+        }
+        const isEmailAvailable = await validateAvailableEmail(userData.email);
+        if (!isEmailAvailable) {
+            formErrors.email = 'Correo electronico ya registrado';
+        }
+        /*
+        if (!validatePassword(userData.password)) {
+          formErrors.password = 'Contraseña inválida';
+        }
+        */
+        setErrors(formErrors);
+        console.log(Object.keys(formErrors).length === 0)
+        return Object.keys(formErrors).length === 0;
+    };
+
+    const handleChange = (e) => {
+        serUserData({
+            ...userData,
+            [e.target.name]: e.target.value
+        })
+    }
 
     return (
         <section>
             <div className="crumbs-container">
-                <div className="crumb" id="crumb-1">1</div>
-                <div className="crumb" id="crumb-2">2</div>
-                <div className="crumb" id="crumb-3">3</div>
+                <div className={`crumb ${activeView >= 1 && 'crumb-active'}`} id="crumb-1">1</div>
+                <div className={`crumb ${activeView >= 2 && 'crumb-active'}`} id="crumb-2">2</div>
+                <div className={`crumb ${activeView >= 3 && 'crumb-active'}`} id="crumb-3">3</div>
             </div>
             <section className="form-container">
                 <form onSubmit={(e) => e.preventDefault()} className="form" id="new-user-form">
@@ -116,41 +141,39 @@ export default () => {
                         <div className="form__item-container">
                             <label for="userName">Nombre de usuario</label>
                             <input
-                                type="name"
+                                type="text"
+                                name="userName"
+                                value={userData.userName}
                                 required
-                                className="form__item"
-                                onChange={(event) => {
-                                    setUserName(event.target.value);
-                                }}
+                                className={`form__item ${errors.userName ? 'form__item--error' : ''}`}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="form__item-container">
                             <label for="userName">Nombre</label>
                             <input
-                                type="name"
+                                type="text"
+                                name="name"
+                                value={userData.name}
                                 required
-                                className="form__item"
-                                onChange={(event) => {
-                                    setName(event.target.value);
-                                }}
+                                className={`form__item ${errors.name ? 'form__item--error' : ''}`}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="form__item-container">
                             <label for="userEmail">Correo electronico</label>
                             <input
                                 type="text"
+                                name="email"
+                                value={userData.email}
                                 required
-                                className="form__item"
-                                onChange={(event) => {
-                                    setEmail(event.target.value);
-                                }}
+                                className={`form__item ${errors.email ? 'form__item--error' : ''}`}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="form__item-container">
                             <label for="userGender">Género</label>
-                            <select name="genero" onChange={(event) => {
-                                    setGender(event.target.value);
-                                }}>
+                            <select name="gender" value={userData.gender} onChange={handleChange}>
                                 <option value="">Seleccionar género</option>
                                 <option value="M">Masculino</option>
                                 <option value="F">Femenino</option>
@@ -161,11 +184,11 @@ export default () => {
                             <label for="userBirthDate">Fecha de nacimiento</label>
                             <input
                                 type="date"
+                                name="birthDate"
+                                value={userData.birthDate}
                                 required
                                 className="form__item"
-                                onChange={(event) => {
-                                    setBirthDate(event.target.value);
-                                }}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="form__button-container">
@@ -176,7 +199,12 @@ export default () => {
                             </button>
                             <button 
                                 className="form__button"
-                                onClick={() => setActiveView(2)}
+                                onClick={async () => {
+                                    const isValid = await validateForm1();
+                                    if (isValid) {
+                                        setActiveView(2);
+                                    }
+                                }}
                             >
                                 Siguiente
                             </button>
@@ -192,6 +220,7 @@ export default () => {
                             <label for="file">Añadir foto de perfil</label>
                             <input
                                 type="file"
+                                name="file"
                                 required
                                 className="form__item"
                                 onChange={handleFileChange}
@@ -200,11 +229,10 @@ export default () => {
                         <div className="form__item-container">
                             <label for="bibliography">Bibliografia</label>
                             <textarea 
-                                name="bibliography" 
+                                name="bio" 
                                 className="form__item form__item-description" 
-                                onChange={(event) => {
-                                    setBio(event.target.value);
-                                }}
+                                value={userData.bio}
+                                onChange={handleChange}
                             ></textarea>
                         </div>
                         <div className="form__button-container">
@@ -233,11 +261,11 @@ export default () => {
                             <label for="userPassword">Contraseña</label>
                             <input
                                 type="password"
+                                name="password"
+                                value={userData.password}
                                 required
                                 className="form__item"
-                                onChange={(event) => {
-                                    setPassword(event.target.value);
-                                }}
+                                onChange={handleChange}
                             />
                         </div> 
 
@@ -245,11 +273,11 @@ export default () => {
                             <label for="confirmUserPassword">Confirmar contraseña</label>
                             <input
                                 type="password"
+                                name="confirmPassword"
+                                value={userData.confirmPassword}
                                 required
                                 className="form__item"
-                                onChange={(event) => {
-                                    setConfirmPassword(event.target.value);
-                                }}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="form__button-container">
@@ -261,7 +289,7 @@ export default () => {
                             </button>
                             <button 
                                 className="form__button"
-                                onClick={() => saveData()}
+                                onClick={saveData}
                             >
                                 Registrar
                             </button>
