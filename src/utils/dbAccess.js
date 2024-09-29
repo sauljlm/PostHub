@@ -7,21 +7,6 @@ class DBAccess {
 		this.url = 'http://localhost:8080';
 	}
 
-	getPosts = async () => {
-		await this.updateData();
-			const data = await JSON.parse(window.localStorage.getItem('postsData'));
-			return data;
-	};
-
-	updateData = async () => {
-		await fetch(`${this.url}/posts/get-posts`)
-			.then(response => response.json())
-			.then(data => window.localStorage.setItem('postsData', JSON.stringify(data)));
-		await fetch(`${this.url}/users/get-users`)
-			.then(response => response.json())
-			.then(data => window.localStorage.setItem('usersData', JSON.stringify(data)));
-	};
-
 	updateLoggedUser = async (userdata) => {
 		await window.sessionStorage.setItem('loggedUser', JSON.stringify(userdata));
 	};
@@ -31,25 +16,47 @@ class DBAccess {
 			return user;
 	};
 
-	/*
-	getUserByEmail = async (email) => {
-		let currentUser = false;
-			let usersData = await JSON.parse(window.localStorage.getItem('usersData'));
-			usersData.forEach(element => {
-				if (element.userEmail == email) {
-					currentUser = element
-				}
+	getUsers = async () => {
+		try {
+			const response = await fetch(`${this.url}/users/get-users`, {
+			  headers: {
+				'Cache-Control': 'no-cache'
+			  },
+			  method: 'GET',
 			});
-		
-			return currentUser;
-	};
-	*/
+			const data = await response.json();
+			
+			if (data.status === 500) {
+			  Swal.fire({
+				icon: 'warning',
+				title: `${data.error}`,
+				confirmButtonText: 'Entendido'
+			  });
+			  return null;
+			} else {
+			  return data;
+			}
+		} catch (error) {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Error en la conexión',
+				'text': 'Hubo un problema al intentar obtener los usuarios. Por favor, inténtalo de nuevo más tarde.',
+				'confirmButtonText': 'Entendido'
+			});
+			return null;  
+		}
+	};	
 
 	getUserByEmail = async (email) => {
 		try {
 			const response = await fetch(`${this.url}/users/get-user-by-email/${email}`);
 			if (response.status === 404) {
-				return null; // Usuario no encontrado
+				Swal.fire({
+					icon: 'warning',
+					title: 'Usuario no encontrado',
+					confirmButtonText: 'Entendido'
+				});
+				return null;
 			}
 			if (!response.ok) {
 				throw new Error('Error al obtener el usuario por correo electrónico');
@@ -57,7 +64,6 @@ class DBAccess {
 			return await response.json();
 		} catch (error) {
 			console.error(error);
-			// Manejar el error
 		}
 	};
 
@@ -65,7 +71,12 @@ class DBAccess {
 		try {
 			const response = await fetch(`${this.url}/users/get-user-by-username/${userName}`);
 			if (response.status === 404) {
-				return null; // Usuario no encontrado
+				Swal.fire({
+					icon: 'warning',
+					title: 'Usuario no encontrado',
+					confirmButtonText: 'Entendido'
+				});
+				return null;
 			}
 			if (!response.ok) {
 				throw new Error('Error al obtener el usuario por nombre de usuario');
@@ -73,7 +84,6 @@ class DBAccess {
 			return await response.json();
 		} catch (error) {
 			console.error(error);
-			// Manejar el error
 		}
 	};
 
@@ -84,7 +94,7 @@ class DBAccess {
 		})
 		.then(response => response.json())
 		.then(response => {
-			if (response.status == 500) {
+			if (response.status === 500) {
 				Swal.fire({
 					'icon': 'warning',
 					'title': `${response.error}`,
@@ -99,8 +109,15 @@ class DBAccess {
 					this.updateLoggedUser(response);
 				})
 			}
-		})
-	};
+		}).catch(error => {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Error en la conexión',
+				'text': 'Hubo un problema al intentar iniciar sesión. Por favor, inténtalo de nuevo más tarde.',
+				'confirmButtonText': 'Entendido'
+			});
+		});
+	}
 
 	createNewUser = async (newUser) => {
 		console.log(newUser);
@@ -110,7 +127,7 @@ class DBAccess {
 		})
 		.then(response => response.json())
 		.then(response => {
-			if (response.status == 500) {
+			if (response.status === 500) {
 				Swal.fire({
 					'icon': 'warning',
 					'title': `${response.error}`,
@@ -123,8 +140,46 @@ class DBAccess {
 					'confirmButtonText': 'Entendido'
 				})
 			}
-		})
+		}).catch(error => {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Error en la conexión',
+				'text': 'Hubo un problema al intentar registrar el usuario. Por favor, inténtalo de nuevo más tarde.',
+				'confirmButtonText': 'Entendido'
+			});
+		});
 	};
+
+	getPosts = async () => {
+		try {
+			const response = await fetch(`${this.url}/posts/get-posts`, {
+			  headers: {
+				'Cache-Control': 'no-cache'
+			  },
+			  method: 'GET',
+			});
+			const data = await response.json();
+			
+			if (data.status === 500) {
+			  Swal.fire({
+				icon: 'warning',
+				title: `${data.error}`,
+				confirmButtonText: 'Entendido'
+			  });
+			  return null;
+			} else {
+			  return data;
+			}
+		} catch (error) {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Error en la conexión',
+				'text': 'Hubo un problema al intentar obtener los posts. Por favor, inténtalo de nuevo más tarde.',
+				'confirmButtonText': 'Entendido'
+			});
+			return null;  
+		}
+	};	
 
 	createNewPost = async (newPost) => {
 		await fetch(`${this.url}/posts/new-post`, {
@@ -133,7 +188,7 @@ class DBAccess {
 		})
 		.then(response => response.json())
 		.then(response => {
-			if (response.status == 500) {
+			if (response.status === 500) {
 				Swal.fire({
 					'icon': 'warning',
 					'title': `${response.error}`,
@@ -146,7 +201,14 @@ class DBAccess {
 					'confirmButtonText': 'Entendido'
 				})
 			}
-		})
+		}).catch(error => {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Error en la conexión',
+				'text': 'Hubo un problema al intentar publicar. Por favor, inténtalo de nuevo más tarde.',
+				'confirmButtonText': 'Entendido'
+			});
+		});
 	};
 
 	updatePost = async (id, postData) => {
@@ -160,7 +222,7 @@ class DBAccess {
 		})
 		.then(response => response.json())
 		.then(response => {
-			if (response.status == 500) {
+			if (response.status === 500) {
 				Swal.fire({
 					'icon': 'warning',
 					'title': `${response.error}`,
@@ -173,7 +235,14 @@ class DBAccess {
 					'confirmButtonText': 'Entendido'
 				})
 			}
-		})
+		}).catch(error => {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Error en la conexión',
+				'text': 'Hubo un problema al intentar actualizar. Por favor, inténtalo de nuevo más tarde.',
+				'confirmButtonText': 'Entendido'
+			});
+		});
 	};
 
 	deletePost = async (id) => {
@@ -186,7 +255,7 @@ class DBAccess {
 		})
 		.then(response => response.json())
 		.then(response => {
-			if (response.status == 500) {
+			if (response.status === 500) {
 				Swal.fire({
 					'icon': 'warning',
 					'title': `${response.error}`,
@@ -199,7 +268,14 @@ class DBAccess {
 					'confirmButtonText': 'Entendido'
 				})
 			}
-		})
+		}).catch(error => {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Error en la conexión',
+				'text': 'Hubo un problema al intentar eliminar. Por favor, inténtalo de nuevo más tarde.',
+				'confirmButtonText': 'Entendido'
+			});
+		});
 	};
 }
 

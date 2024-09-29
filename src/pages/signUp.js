@@ -1,8 +1,8 @@
 //Floatui component https://www.floatui.com/
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import DBAccess from "../utils/dbAccess";
 
-export default () => {
+const SignUp = () => {
     const usersDataDB = new DBAccess();
 
     const [userData, serUserData] = useState({
@@ -62,7 +62,8 @@ export default () => {
     };
 
     const validateEmail = (email) => {
-        const regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+        //const regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+        const regex = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
         const valid = regex.test(email);
         return valid;
     };
@@ -117,7 +118,6 @@ export default () => {
         }
         */
         setErrors(formErrors);
-        console.log(Object.keys(formErrors).length === 0)
         return Object.keys(formErrors).length === 0;
     };
 
@@ -161,7 +161,7 @@ export default () => {
                             />
                         </div>
                         <div className="form__item-container">
-                            <label for="userEmail">Correo electronico</label>
+                            <label for="userEmail">Correo electrónico</label>
                             <input
                                 type="text"
                                 name="email"
@@ -300,3 +300,5 @@ export default () => {
         </section>
     );
 };
+
+export default SignUp;
