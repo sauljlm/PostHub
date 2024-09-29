@@ -129,7 +129,7 @@ const SignUp = () => {
     }
 
     return (
-        <section>
+        <section className="content-wrapper">
             <div className="crumbs-container">
                 <div className={`crumb ${activeView >= 1 && 'crumb-active'}`} id="crumb-1">1</div>
                 <div className={`crumb ${activeView >= 2 && 'crumb-active'}`} id="crumb-2">2</div>

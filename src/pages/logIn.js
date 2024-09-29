@@ -54,7 +54,7 @@ const LogIn = () => {
     }
 
     return (
-        <section className="form-container">
+        <section className="content-wrapper form-container">
             <form onSubmit={(e) => e.preventDefault()} className="form" id="log-in-form">
                 <div className="form-section">
                     <div className="password-icon-container">
