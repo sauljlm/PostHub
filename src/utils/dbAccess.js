@@ -87,6 +87,41 @@ class DBAccess {
 		}
 	};
 
+	getAvailableEmail = async (email) => {
+		try {
+			const response = await fetch(`${this.url}/users/get-user-by-email/${email}`);
+			if (response.ok) {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Correo electrónico ya registrado',
+					confirmButtonText: 'Entendido'
+				});
+				return null;
+			}
+			return true;
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+
+	getAvailableUserName = async (userName) => {
+		try {
+			const response = await fetch(`${this.url}/users/get-user-by-username/${userName}`);
+			if (response.ok) {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Nombre de usuario ya registrado',
+					confirmButtonText: 'Entendido'
+				});
+				return null;
+			}
+			return true;
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
 	logIn = async (userData) => {
 		await fetch(`${this.url}/users/log-in`, {
 			method: 'POST',

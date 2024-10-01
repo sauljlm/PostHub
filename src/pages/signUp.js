@@ -1,6 +1,7 @@
 //Floatui component https://www.floatui.com/
 import React, { useState } from 'react';
 import DBAccess from "../utils/dbAccess";
+import resizeImage from "../utils/resizeImg";
 
 const SignUp = () => {
     const usersDataDB = new DBAccess();
@@ -24,34 +25,26 @@ const SignUp = () => {
 
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
-        serUserData({...userData, file: selectedFile})
+        const reader = new FileReader();
+        const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
 
         if (selectedFile) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewImage(reader.result);
-            };
+            if (selectedFile.size > maxSizeInBytes) {
+                resizeImage(selectedFile, 1024, 1024, 0.9, (resizedFile) => {
+                    serUserData({ ...userData, file: resizedFile });
+                    reader.onloadend = () => {
+                        setPreviewImage(resizedFile);
+                    };
+                    console.log("size " + resizedFile.size);
+                });
+            } else {
+                serUserData({ ...userData, file: selectedFile });
+                reader.onloadend = () => {
+                    setPreviewImage(reader.result);
+                };
+            }
+            console.log("size " + selectedFile.size);
             reader.readAsDataURL(selectedFile);
-        }
-    };
-
-    const validateAvailableEmail = async (email) => {
-        try {
-            const user = await usersDataDB.getUserByEmail(email);
-            return user === null; // Retorna true si no existe el usuario, false si existe
-        } catch (error) {
-            console.error('Error al obtener el usuario por correo electrónico:', error);
-            return false;
-        }
-    }
-
-    const validateAvailableUserName = async (userName) => {
-        try {
-            const user = await usersDataDB.getUserByUsername(userName);
-            return user === null; // Retorna true si no existe el usuario, false si existe
-        } catch (error) {
-            console.error('Error al obtener el usuario por nombre de usuario:', error);
-            return false;
         }
     };
 
@@ -62,7 +55,6 @@ const SignUp = () => {
     };
 
     const validateEmail = (email) => {
-        //const regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
         const regex = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
         const valid = regex.test(email);
         return valid;
@@ -74,13 +66,34 @@ const SignUp = () => {
         return valid;
     };
 
-    /*
-    const validateForm = () => {
-        validateName(userData.name);
-        validateEmail(userData.email);
-        validatePassword(userData.password);
-    };
-    */
+    const validateImage = (image) => {
+        const validFileTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (image && !validFileTypes.includes(image.type)) {
+            alert("Por favor, selecciona un archivo de imagen válido (jpg, png, gif).");
+            return false;
+        }
+        return true;
+    }
+
+    const validateBirthDate = (date) => {
+        const today = new Date();
+        const birthDate = new Date(date);
+        
+        if (!userData.birthDate) {
+            return 'Debe seleccionar una fecha de nacimiento';
+        } else if (birthDate >= today) {
+            return 'La fecha de nacimiento no puede estar en el futuro';
+        } else {
+            const ageDiffMs = today - birthDate;
+            const ageDate = new Date(ageDiffMs);
+            const age = Math.abs(ageDate.getUTCFullYear() - 1970); // Calcular edad
+            if (age < 12) {
+                return 'Debe tener al menos 12 años';
+            }
+        }
+
+        return '';
+    }
 
     const saveData = async () => {
         const formData = new FormData();
@@ -95,7 +108,7 @@ const SignUp = () => {
     const validateForm1 = async () => {
         let formErrors = {};
 
-        const isUserNameAvailable = await validateAvailableUserName(userData.userName);
+        const isUserNameAvailable = await usersDataDB.getAvailableUserName(userData.userName);
         if (!isUserNameAvailable) {
             formErrors.userName = 'Nombre de usuario ya registrado';
         }
@@ -105,18 +118,49 @@ const SignUp = () => {
         if (!validateName(userData.name) || !userData.name.trim()) {
             formErrors.name = 'Nombre inválido';
         }
-        if (!validateEmail(userData.email)) {
-            formErrors.email = 'Correo electrónico inválido';
-        }
-        const isEmailAvailable = await validateAvailableEmail(userData.email);
+        const isEmailAvailable = await usersDataDB.getAvailableEmail(userData.email);
         if (!isEmailAvailable) {
             formErrors.email = 'Correo electronico ya registrado';
         }
-        /*
+        if (!validateEmail(userData.email)) {
+            formErrors.email = 'Correo electrónico inválido';
+        }
+        if (!userData.gender.trim()) {
+            formErrors.gender = 'Debe seleccionar un género';
+        }
+        const isBirthDateCorrect = await validateBirthDate(userData.birthDate)
+        if (isBirthDateCorrect !== '') {
+            formErrors.birthDate = isBirthDateCorrect;
+        }
+
+        setErrors(formErrors);
+        return Object.keys(formErrors).length === 0;
+    };
+
+    const validateForm2 = async () => {
+        let formErrors = {};
+
+        if (!validateImage(userData.file)) {
+            formErrors.image = 'Formato de imagen inválido';
+          }
+        if (!userData.bio.trim()) {
+            formErrors.bio = 'La bio no puede estar vacía';
+        }
+        setErrors(formErrors);
+        return Object.keys(formErrors).length === 0;
+    };
+
+    const validateForm3 = async () => {
+        let formErrors = {};
+
         if (!validatePassword(userData.password)) {
           formErrors.password = 'Contraseña inválida';
         }
-        */
+
+        if (userData.password !== userData.confirmPassword) {
+            formErrors.confirmPassword = 'Contraseñas no coinciden';
+        }
+
         setErrors(formErrors);
         return Object.keys(formErrors).length === 0;
     };
@@ -187,7 +231,7 @@ const SignUp = () => {
                                 name="birthDate"
                                 value={userData.birthDate}
                                 required
-                                className="form__item"
+                                className={`form__item ${errors.birthDate ? 'form__item--error' : ''}`}
                                 onChange={handleChange}
                             />
                         </div>
@@ -222,15 +266,15 @@ const SignUp = () => {
                                 type="file"
                                 name="file"
                                 required
-                                className="form__item"
+                                className={`form__item ${errors.image ? 'form__item--error' : ''}`}
                                 onChange={handleFileChange}
                             />
                         </div>
                         <div className="form__item-container">
                             <label for="bibliography">Bibliografia</label>
                             <textarea 
-                                name="bio" 
-                                className="form__item form__item-description" 
+                                name="bio"
+                                className={`form__item form__item-description ${errors.bio ? 'form__item--error' : ''}`}
                                 value={userData.bio}
                                 onChange={handleChange}
                             ></textarea>
@@ -244,7 +288,13 @@ const SignUp = () => {
                             </button>
                             <button 
                                 className="form__button"
-                                onClick={() => setActiveView(3)}
+                                
+                                onClick={async () => {
+                                    const isValid = await validateForm2();
+                                    if (isValid) {
+                                        setActiveView(3);
+                                    }
+                                }}
                             >
                                 Siguiente
                             </button>
@@ -264,7 +314,7 @@ const SignUp = () => {
                                 name="password"
                                 value={userData.password}
                                 required
-                                className="form__item"
+                                className={`form__item ${errors.password ? 'form__item--error' : ''}`}
                                 onChange={handleChange}
                             />
                         </div> 
@@ -276,7 +326,7 @@ const SignUp = () => {
                                 name="confirmPassword"
                                 value={userData.confirmPassword}
                                 required
-                                className="form__item"
+                                className={`form__item ${errors.confirmPassword ? 'form__item--error' : ''}`}
                                 onChange={handleChange}
                             />
                         </div>
@@ -289,7 +339,12 @@ const SignUp = () => {
                             </button>
                             <button 
                                 className="form__button"
-                                onClick={saveData}
+                                onClick={async () => {
+                                    const isValid = await validateForm3();
+                                    if (isValid) {
+                                        saveData();
+                                    }
+                                }}
                             >
                                 Registrar
                             </button>
