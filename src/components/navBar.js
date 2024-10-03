@@ -1,8 +1,9 @@
 import { useState } from "react";
 
 const Navbar = () => {
-    const [currentUser, setCurrentUser] = useState(false);
-    const [activeLink, setActiveLink] = useState(0);
+    // const [currentUser, setCurrentUser] = useState(false);
+    // const [activeLink, setActiveLink] = useState(0);
+    const currentUser = false;
     const [hamburguerActive, setHamburguerActive] = useState(false);
 
     const pathname = window.location.pathname;
@@ -18,12 +19,12 @@ const Navbar = () => {
         { title: "Registrarse", path: "/sign-up" }
     ];
 
-    async function updateLoggedUser() {
-        currentUser = await JSON.parse(window.sessionStorage.getItem('loggedUser'));
-    }
+    // async function updateLoggedUser() {
+    //     currentUser = await JSON.parse(window.sessionStorage.getItem('loggedUser'));
+    // }
 
     const handleLinkClick = (idx) => {
-        setActiveLink(idx);
+        //setActiveLink(idx);
     };
     
     const renderMenuItems = (navigationItems) => {
