@@ -83,7 +83,7 @@ const LogIn = () => {
                             className="form__item"
                             onChange={handleChange}
                         />
-                    </div> 
+                    </div>
                     <div className="form__button-container">
                         <button 
                             className="form__button"

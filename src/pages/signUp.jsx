@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import DBAccess from "../utils/dbAccess";
 import resizeImage from "../utils/resizeImg";
+import Dropdown from "../components/common/dropdown";
+import TextInput from "../components/common/textInput";
 
 const SignUp = () => {
     const usersDataDB = new DBAccess();
 
-    const [userData, serUserData] = useState({
+    const [userData, setUserData] = useState({
         userName: "",
         name: "",
         bio: "",
@@ -22,7 +24,8 @@ const SignUp = () => {
 
     const [previewImage, setPreviewImage] = useState(null);
     const [activeView, setActiveView] = useState(1);
-
+    const GENDER_OPTIONS = ["Masculino", "Femenino", "Otro"];
+    
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
         const reader = new FileReader();
@@ -31,14 +34,14 @@ const SignUp = () => {
         if (selectedFile) {
             if (selectedFile.size > maxSizeInBytes) {
                 resizeImage(selectedFile, 1024, 1024, 0.9, (resizedFile) => {
-                    serUserData({ ...userData, file: resizedFile });
+                    setUserData({ ...userData, file: resizedFile });
                     reader.onloadend = () => {
                         setPreviewImage(resizedFile);
                     };
                     console.log("size " + resizedFile.size);
                 });
             } else {
-                serUserData({ ...userData, file: selectedFile });
+                setUserData({ ...userData, file: selectedFile });
                 reader.onloadend = () => {
                     setPreviewImage(reader.result);
                 };
@@ -48,22 +51,101 @@ const SignUp = () => {
         }
     };
 
+    const addError = (formErrors) => {
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            ...formErrors,
+        }));
+    }
+
+    const validateUserName = async (userName) => {
+        let formErrors = {};
+        const isUserNameAvailable = await usersDataDB.getAvailableUserName(userName);
+
+        if (!isUserNameAvailable) {
+            formErrors.userName = 'Nombre de usuario ya registrado';
+        }
+        if (!userName.trim()) {
+            formErrors.userName = 'Nombre de usuario no puede estar vacío';
+        }
+        if (Object.keys(formErrors).length === 0) {
+            formErrors.userName = '';
+        }
+
+        addError(formErrors);
+        return formErrors;
+    };
+
     const validateName = (name) => {
+        let formErrors = {};
         const regex = /^[a-zA-ZÀ-ÖØ-öø-ÿ\s']{1,50}$/;
-        let valid = regex.test(name);
-        return valid;
+
+        if (!regex.test(name)) {
+            formErrors.name = 'Nombre invalido';
+        }
+        if (!name.trim()) {
+            formErrors.name = 'Nombre de usuario no puede estar vacío';
+        }
+        if (Object.keys(formErrors).length === 0) {
+            formErrors.name = '';
+        }
+        
+        addError(formErrors);
+        return formErrors;
     };
 
-    const validateEmail = (email) => {
+    const validateEmail = async (email) => {
+        let formErrors = {};
         const regex = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
-        const valid = regex.test(email);
-        return valid;
+        const isEmailAvailable = await usersDataDB.getAvailableEmail(email);
+
+        if (!isEmailAvailable) {
+            formErrors.email = 'Correo electronico ya registrado';
+        }
+        if (!regex.test(email)) {
+            formErrors.email = 'Correo electrónico inválido';
+        }
+        if (!email.trim()) {
+            formErrors.email = 'El correo electrónico no puede estar vacío.';
+        }
+        if (Object.keys(formErrors).length === 0) {
+            formErrors.email = '';
+        }
+
+        addError(formErrors);
+        return formErrors;
     };
 
-    const validatePassword = (password) => {
+    const validateGender = (gender) => {
+        let formErrors = {};
+
+        if (!gender.trim()) {
+            formErrors.gender = 'Debe seleccionar un género';
+        }
+        if (Object.keys(formErrors).length === 0) {
+            formErrors.gender = '';
+        }
+        
+        addError(formErrors);
+        return formErrors;
+    };
+
+    const validatePassword = async (password) => {
+        let formErrors = {};
         const regex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
-        const valid = regex.test(password);
-        return valid;
+
+        if (!regex.test(password)) {
+            formErrors.password = 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial';
+        }
+        if (!password.trim()) {
+            return 'La contraseña no puede estar vacía.';
+        }
+        if (Object.keys(formErrors).length === 0) {
+            formErrors.password = '';
+        }
+
+        addError(formErrors);
+        return formErrors;
     };
 
     const validateImage = (image) => {
@@ -76,23 +158,25 @@ const SignUp = () => {
     }
 
     const validateBirthDate = (date) => {
+        let formErrors = {};
         const today = new Date();
         const birthDate = new Date(date);
         
         if (!userData.birthDate) {
-            return 'Debe seleccionar una fecha de nacimiento';
+            formErrors.birthDate = 'Debe seleccionar una fecha de nacimiento';
         } else if (birthDate >= today) {
-            return 'La fecha de nacimiento no puede estar en el futuro';
+            formErrors.birthDate = 'La fecha de nacimiento no puede estar en el futuro';
         } else {
             const ageDiffMs = today - birthDate;
             const ageDate = new Date(ageDiffMs);
             const age = Math.abs(ageDate.getUTCFullYear() - 1970); // Calcular edad
             if (age < 12) {
-                return 'Debe tener al menos 12 años';
+                formErrors.birthDate = 'Debe tener al menos 12 años';
             }
         }
 
-        return '';
+        addError(formErrors);
+        return formErrors;
     }
 
     const saveData = async () => {
@@ -106,35 +190,23 @@ const SignUp = () => {
     };
 
     const validateForm1 = async () => {
-        let formErrors = {};
+        let accumulatedErrors = {};
 
-        const isUserNameAvailable = await usersDataDB.getAvailableUserName(userData.userName);
-        if (!isUserNameAvailable) {
-            formErrors.userName = 'Nombre de usuario ya registrado';
-        }
-        if (!userData.userName.trim()) {
-            formErrors.userName = 'Nombre de usuario no puede estar vacío';
-        }
-        if (!validateName(userData.name) || !userData.name.trim()) {
-            formErrors.name = 'Nombre inválido';
-        }
-        const isEmailAvailable = await usersDataDB.getAvailableEmail(userData.email);
-        if (!isEmailAvailable) {
-            formErrors.email = 'Correo electronico ya registrado';
-        }
-        if (!validateEmail(userData.email)) {
-            formErrors.email = 'Correo electrónico inválido';
-        }
-        if (!userData.gender.trim()) {
-            formErrors.gender = 'Debe seleccionar un género';
-        }
-        const isBirthDateCorrect = await validateBirthDate(userData.birthDate)
-        if (isBirthDateCorrect !== '') {
-            formErrors.birthDate = isBirthDateCorrect;
-        }
+        const userNameErrors = await validateUserName(userData.userName);
+        const nameErrors= await validateName(userData.name);
+        const emailErrors = await validateEmail(userData.email);
+        const genderErrors = await validateGender(userData.gender);
+        const birthDateErrors = await validateBirthDate(userData.birthDate)
 
-        setErrors(formErrors);
-        return Object.keys(formErrors).length === 0;
+        accumulatedErrors = {
+            ...userNameErrors,
+            ...nameErrors,
+            ...emailErrors,
+            ...genderErrors,
+            ...birthDateErrors,
+        };
+
+        return Object.keys(accumulatedErrors).length === 0;
     };
 
     const validateForm2 = async () => {
@@ -146,7 +218,7 @@ const SignUp = () => {
         if (!userData.bio.trim()) {
             formErrors.bio = 'La bio no puede estar vacía';
         }
-        setErrors(formErrors);
+        addError(formErrors);
         return Object.keys(formErrors).length === 0;
     };
 
@@ -161,12 +233,12 @@ const SignUp = () => {
             formErrors.confirmPassword = 'Contraseñas no coinciden';
         }
 
-        setErrors(formErrors);
+        addError(formErrors);
         return Object.keys(formErrors).length === 0;
     };
 
     const handleChange = (e) => {
-        serUserData({
+        setUserData({
             ...userData,
             [e.target.name]: e.target.value
         })
@@ -183,36 +255,42 @@ const SignUp = () => {
                 <form onSubmit={(e) => e.preventDefault()} className="form" id="new-user-form">
                     <div className="form-section" style={{ display: activeView === 1 ? 'block' : 'none' }}>
                         <div className="form__item-container">
-                            <label for="userName">Nombre de usuario</label>
-                            <input
+                            <TextInput
+                                labelText="User Name"
+                                errorText={errors.userName}
                                 type="text"
+                                id="userName"
                                 name="userName"
-                                value={userData.userName}
-                                required
                                 className={`form__item ${errors.userName ? 'form__item--error' : ''}`}
-                                onChange={handleChange}
+                                placeholder="UserName"
+                                setValue={handleChange}
+                                validationFunction={validateUserName}
                             />
                         </div>
                         <div className="form__item-container">
-                            <label for="userName">Nombre</label>
-                            <input
+                            <TextInput
+                                labelText="Name"
+                                errorText={errors.name}
                                 type="text"
+                                id="name"
                                 name="name"
-                                value={userData.name}
-                                required
                                 className={`form__item ${errors.name ? 'form__item--error' : ''}`}
-                                onChange={handleChange}
+                                placeholder="Name"
+                                setValue={handleChange}
+                                validationFunction={validateName}
                             />
                         </div>
                         <div className="form__item-container">
-                            <label for="userEmail">Correo electrónico</label>
-                            <input
+                            <TextInput
+                                labelText="Email"
+                                errorText={errors.email}
                                 type="text"
+                                id="email"
                                 name="email"
-                                value={userData.email}
-                                required
                                 className={`form__item ${errors.email ? 'form__item--error' : ''}`}
-                                onChange={handleChange}
+                                placeholder="Email"
+                                setValue={handleChange}
+                                validationFunction={validateEmail}
                             />
                         </div>
                         <div className="form__item-container">
@@ -223,16 +301,18 @@ const SignUp = () => {
                                 <option value="F">Femenino</option>
                                 <option value="O">Otro</option>
                             </select>
-                        </div> 
+                        </div>
                         <div className="form__item-container">
-                            <label for="userBirthDate">Fecha de nacimiento</label>
-                            <input
+                            <TextInput
+                                labelText="Birth Date"
+                                errorText={errors.birthDate}
                                 type="date"
+                                id="birthDate"
                                 name="birthDate"
-                                value={userData.birthDate}
-                                required
                                 className={`form__item ${errors.birthDate ? 'form__item--error' : ''}`}
-                                onChange={handleChange}
+                                placeholder="Birth Date"
+                                setValue={handleChange}
+                                validationFunction={validateBirthDate}
                             />
                         </div>
                         <div className="form__button-container">
