@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Navbar = () => {
-    // const [currentUser, setCurrentUser] = useState(false);
+    const [currentUser, setCurrentUser] = useState(false);
     // const [activeLink, setActiveLink] = useState(0);
-    const currentUser = false;
     const [hamburguerActive, setHamburguerActive] = useState(false);
 
     const pathname = window.location.pathname;
@@ -19,10 +18,22 @@ const Navbar = () => {
         { title: "Registrarse", path: "/sign-up" }
     ];
 
-    // async function updateLoggedUser() {
-    //     currentUser = await JSON.parse(window.sessionStorage.getItem('loggedUser'));
-    // }
-
+    useEffect(() => {
+        const handleStorageChange = () => {
+            const loggedUser = JSON.parse(window.sessionStorage.getItem('loggedUser'));
+            setCurrentUser(loggedUser);
+        };
+    
+        window.addEventListener('storage', handleStorageChange);
+    
+        // Ejecutar al cargar el componente
+        handleStorageChange();
+    
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
+    
     const handleLinkClick = (idx) => {
         //setActiveLink(idx);
     };
@@ -58,7 +69,7 @@ const Navbar = () => {
             </div>
             <div className="desktop-nav">
                 <nav className="menu">
-                    <button className="header__sign-out">Cerrar Sesion</button>
+                    {currentUser &&<button className="header__sign-out">Cerrar Sesion</button>}
                     <ul className="menu__container">
                     {currentUser ? renderMenuItems(navigationLogged) : renderMenuItems(navigationMain)}
                     </ul>
