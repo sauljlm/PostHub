@@ -27,26 +27,30 @@ const Profile = () => {
   }, [loggedUser]);
 
   return (
-    <div className="content-wrapper">
-      <section>
-        {/* <img
+    <div className="content-wrapper profile">
+      <section className="profile__info-container">
+        <img
             src= {loggedUser.imageURL}
             alt={`${loggedUser.userName} profile`}
-            className="post-header__profile-image"
-        /> */}
+            className="profile__info-profile-photo"
+        />
+        <div className="profile__info">
+          <h2 className="profile__info-username">{loggedUser.userName}</h2>
+          <ul className="profile__info-specs">
+            <li>{"0"} <span>publicaciones</span></li>
+            <li>{"0"} <span>seguidores</span></li>
+            <li>{"0"} <span>seguidos</span></li>
+          </ul>
+          <h3 className="profile__info-name">{loggedUser.name}</h3>
+          <p className="profile__info-bio">{loggedUser.bio}</p>
+        </div>
       </section>
-      <section className="post-container">
+      <section className="profile__post-container">
         {Array.isArray(postsItems) && postsItems.length > 0 ? (
           postsItems.map((postItem) => (
-            <Post
-              key={postItem._id}
-              public_id={postItem.public_id}
-              title={postItem.postTitle}
-              postDate={new Date(postItem.postDate)}
-              imageURL={postItem.imageURL}
-              description={postItem.postDescription}
-              userData={loggedUser}
-            />
+            <div className="profile__post-asset-container">
+              <img src={postItem.imageURL} alt={postItem.postTitle} className="profile__post-asset" />
+            </div>
           ))
         ) : (
           <p>No hay publicaciones disponibles</p>
