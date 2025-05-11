@@ -6,6 +6,7 @@ import Home from "./pages/home";
 import SignUp from "./pages/signUp";
 import LogIn from "./pages/logIn";
 import NewPost from "./pages/newPost";
+import Profile from "./pages/profile";
 import Navbar from "./components/navBar";
 import './sass/style.scss';
 
@@ -21,6 +22,7 @@ root.render(
         <Route exact path="/sign-up" element={<SignUp></SignUp>} />
         <Route exact path="/log-in" element={<LogIn></LogIn>} />
         <Route exact path="/new-post" element={<NewPost></NewPost>} />
+        <Route exact path="/mi-perfil" element={<Profile></Profile>} />
       </Routes>
 
     </QueryClientProvider>

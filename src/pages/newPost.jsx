@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import DBAccess from "../utils/dbAccess";
 import resizeImage from "../utils/resizeImg";
 import TextInput from "../components/common/textInput";
+import { useNavigate } from "react-router-dom";
 
 const NewPost = () => {
     const postsDataDB = new DBAccess();
+    const navigate = useNavigate();
 
     const [postData, setPostData] = useState({
         userName: "",
         postTitle: "",
-        postDate: "",
+        postDate: Date.now(),
         postDescription: "",
         state: "AC"
     })
@@ -68,6 +70,7 @@ const NewPost = () => {
         });
     
         await postsDataDB.createNewPost(formData);
+        navigate("/");
     };
 
     const validateForm = async () => {
@@ -137,13 +140,13 @@ const NewPost = () => {
                         </div>
                         <div className="form__button-container">
                             <button 
-                                className="form__button"
+                                className="form__button form__button-cancel"
                                 onClick={() => console.log("cancelando")}
                             >
                                 Cancelar
                             </button>
                             <button 
-                                className="form__button"
+                                className="form__button form__button-save"
                                 onClick={async () => {
                                     const isValid = await validateForm();
                                     if (isValid) {

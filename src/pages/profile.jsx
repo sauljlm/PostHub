@@ -2,25 +2,39 @@ import React, { useState, useEffect } from "react";
 import Post from "../components/post";
 import DBAccess from "../utils/dbAccess";
 
-
-const Home = () => {
+const Profile = () => {
   const [postsItems, setPostsItems] = useState([]);
   const [loggedUser, setLoggedUser] = useState([]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const postDataDB = new DBAccess();
-      let posts = await postDataDB.getPosts();
-      posts.sort((a, b) => new Date(b.postDate) - new Date(a.postDate))
-      await setPostsItems(posts);
-      await setLoggedUser(JSON.parse(sessionStorage.getItem("loggedUser")));
-    };
-
-    fetchPosts();
+    const user = JSON.parse(sessionStorage.getItem("loggedUser"));
+    if (user) {
+      setLoggedUser(user);
+    }
   }, []);
+  
+  useEffect(() => {
+    const fetchPosts = async () => {
+      if (!loggedUser || !loggedUser.userName) return;
+  
+      const postDataDB = new DBAccess();
+      let posts = await postDataDB.getPostsByUserName(loggedUser.userName);
+      posts.sort((a, b) => new Date(b.postDate) - new Date(a.postDate));
+      setPostsItems(posts);
+    };
+  
+    fetchPosts();
+  }, [loggedUser]);
 
   return (
     <div className="content-wrapper">
+      <section>
+        {/* <img
+            src= {loggedUser.imageURL}
+            alt={`${loggedUser.userName} profile`}
+            className="post-header__profile-image"
+        /> */}
+      </section>
       <section className="post-container">
         {Array.isArray(postsItems) && postsItems.length > 0 ? (
           postsItems.map((postItem) => (
@@ -42,4 +56,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Profile;

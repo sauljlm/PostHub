@@ -1,5 +1,6 @@
 //Floatui component https://www.floatui.com/
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import DBAccess from "../utils/dbAccess";
 import resizeImage from "../utils/resizeImg";
 import Dropdown from "../components/common/dropdown";
@@ -7,6 +8,7 @@ import TextInput from "../components/common/textInput";
 
 const SignUp = () => {
     const usersDataDB = new DBAccess();
+    const navigate = useNavigate();
 
     const [userData, setUserData] = useState({
         userName: "",
@@ -161,8 +163,8 @@ const SignUp = () => {
         let formErrors = {};
         const today = new Date();
         const birthDate = new Date(date);
-        
-        if (!userData.birthDate) {
+
+        if (!date) {
             formErrors.birthDate = 'Debe seleccionar una fecha de nacimiento';
         } else if (birthDate >= today) {
             formErrors.birthDate = 'La fecha de nacimiento no puede estar en el futuro';
@@ -187,25 +189,28 @@ const SignUp = () => {
         });
     
         await usersDataDB.createNewUser(formData);
+        navigate("/log-in");
     };
 
     const validateForm1 = async () => {
         let accumulatedErrors = {};
-
-        const userNameErrors = await validateUserName(userData.userName);
-        const nameErrors= await validateName(userData.name);
-        const emailErrors = await validateEmail(userData.email);
-        const genderErrors = await validateGender(userData.gender);
-        const birthDateErrors = await validateBirthDate(userData.birthDate)
-
-        accumulatedErrors = {
-            ...userNameErrors,
-            ...nameErrors,
-            ...emailErrors,
-            ...genderErrors,
-            ...birthDateErrors,
-        };
-
+    
+        const validations = [
+            await validateUserName(userData.userName),
+            await validateName(userData.name),
+            await validateEmail(userData.email),
+            await validateGender(userData.gender),
+            await validateBirthDate(userData.birthDate)
+        ];
+    
+        validations.forEach(errorObj => {
+            Object.entries(errorObj).forEach(([key, value]) => {
+                if (value) {
+                    accumulatedErrors[key] = value;
+                }
+            });
+        });
+    
         return Object.keys(accumulatedErrors).length === 0;
     };
 
@@ -251,7 +256,7 @@ const SignUp = () => {
                 <div className={`crumb ${activeView >= 2 && 'crumb-active'}`} id="crumb-2">2</div>
                 <div className={`crumb ${activeView >= 3 && 'crumb-active'}`} id="crumb-3">3</div>
             </div>
-            <section className="form-container">
+            <article className="form-container">
                 <form onSubmit={(e) => e.preventDefault()} className="form" id="new-user-form">
                     <div className="form-section" style={{ display: activeView === 1 ? 'block' : 'none' }}>
                         <div className="form__item-container">
@@ -295,7 +300,7 @@ const SignUp = () => {
                         </div>
                         <div className="form__item-container">
                             <label for="userGender">Género</label>
-                            <select name="gender" value={userData.gender} onChange={handleChange}>
+                            <select name="gender" value={userData.gender} onChange={handleChange} className="form__item-select">
                                 <option value="">Seleccionar género</option>
                                 <option value="M">Masculino</option>
                                 <option value="F">Femenino</option>
@@ -317,15 +322,16 @@ const SignUp = () => {
                         </div>
                         <div className="form__button-container">
                             <button 
-                                className="form__button"
+                                className="form__button form__button-cancel"
                             >
                                 Cancelar
                             </button>
                             <button 
-                                className="form__button"
+                                className="form__button form__button-save"
                                 onClick={async () => {
                                     const isValid = await validateForm1();
                                     if (isValid) {
+                                        console.log("changing view")
                                         setActiveView(2);
                                     }
                                 }}
@@ -361,13 +367,13 @@ const SignUp = () => {
                         </div>
                         <div className="form__button-container">
                             <button 
-                                className="form__button"
+                                className="form__button form__button-cancel"
                                 onClick={() => setActiveView(1)}
                             >
                                 Anterior
                             </button>
                             <button 
-                                className="form__button"
+                                className="form__button form__button-save"
                                 
                                 onClick={async () => {
                                     const isValid = await validateForm2();
@@ -412,13 +418,13 @@ const SignUp = () => {
                         </div>
                         <div className="form__button-container">
                             <button 
-                                className="form__button"
+                                className="form__button form__button-cancel"
                                 onClick={() => setActiveView(2)}
                             >
                                 Anterior
                             </button>
                             <button 
-                                className="form__button"
+                                className="form__button form__button-save"
                                 onClick={async () => {
                                     const isValid = await validateForm3();
                                     if (isValid) {
@@ -431,7 +437,7 @@ const SignUp = () => {
                         </div>
                     </div>
                 </form>
-            </section>
+            </article>
         </section>
     );
 };

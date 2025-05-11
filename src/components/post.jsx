@@ -1,16 +1,20 @@
-const Post = ({public_id, title, postDate, imageURL, description, userName}) => {
+import { timeAgo } from "../utils/formatter";
+
+const Post = ({public_id, title, postDate, imageURL, description, userData}) => {
+
+    console.log(userData)
 
     return (
         <article className="post">
             <header className="post-header">
                 <div className="post-header__left">
                     <img
-                        src="https://placehold.co/40x40"
-                        alt={`${userName} profile`}
+                        src= {userData.imageURL}
+                        alt={`${userData.userName} profile`}
                         className="post-header__profile-image"
                     />
                     <div className="post-header__info">
-                        <h2 className="post-header__username">{userName}</h2>
+                        <h2 className="post-header__username">{userData.userName}</h2>
                         <p className="post-header__location">Sedona, Arizona</p>
                     </div>
                 </div>
@@ -28,9 +32,9 @@ const Post = ({public_id, title, postDate, imageURL, description, userName}) => 
                 </div>
                 <p className="post-content__likes">444 Me gusta</p>
                 <div className="post-content__description">
-                    <strong>{userName}</strong> {description}
+                    <strong>{userData.userName}</strong> {description}
                 </div>
-                <p className="post-content__post-date">{new Date(postDate).toLocaleString()}</p>
+                <p className="post-content__post-date">{timeAgo(postDate)}</p>
             </div>
 
             <div className="post-footer">

@@ -10,7 +10,7 @@ const Navbar = () => {
     const navigationLogged = [
         { title: "Inicio", path: "/" },
         { title: "Nuevo post", path: "/new-post" },
-        { title: "My perfil", path: "/our-customers" }
+        { title: "Mi perfil", path: "/mi-perfil" }
     ];
     const navigationMain = [
         { title: "Inicio", path: "/" },

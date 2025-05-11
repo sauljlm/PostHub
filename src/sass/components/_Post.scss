@@ -10,8 +10,9 @@
 
 .post-container {
     display: flex;
-    justify-content: center;
+    align-items: center;
     margin-top: 20px;
+    flex-direction: column;
 }
   
 .post-header {
@@ -23,13 +24,6 @@
     &__left {
       display: flex;
       align-items: center;
-
-      &__profile-image {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        margin-right: 10px;
-      }
 
       &__info {
         display: flex;
@@ -53,15 +47,23 @@
     }
 }
 
-.post-asset-container {
-width: 100%;
-max-height: 600px;
-overflow: hidden;
+.post-header__profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: fill;
+}
 
-    .post-asset {
-        width: 100%;
-        object-fit: cover;
-    }
+.post-asset-container {
+    width: 100%;
+    max-height: 600px;
+    overflow: hidden;
+
+        .post-asset {
+            width: 100%;
+            object-fit: cover;
+        }
 }
 
 .post-content {

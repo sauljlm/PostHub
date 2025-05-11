@@ -217,6 +217,38 @@ class DBAccess {
 		}
 	};	
 
+	getPostsByUserName = async (userName) => {
+		console.log(userName)
+		try {
+			const response = await fetch(`${this.url}/posts/get-posts/${userName}`, {
+			  headers: {
+				'Cache-Control': 'no-cache'
+			  },
+			  method: 'GET',
+			});
+			const data = await response.json();
+			
+			if (data.status === 500) {
+			  Swal.fire({
+				icon: 'warning',
+				title: `${data.error}`,
+				confirmButtonText: 'Entendido'
+			  });
+			  return null;
+			} else {
+			  return data;
+			}
+		} catch (error) {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Error en la conexión',
+				'text': 'Hubo un problema al intentar obtener los posts. Por favor, inténtalo de nuevo más tarde.',
+				'confirmButtonText': 'Entendido'
+			});
+			return null;  
+		}
+	};
+
 	createNewPost = async (newPost) => {
 		await fetch(`${this.url}/posts/new-post`, {
 			method: "POST",
