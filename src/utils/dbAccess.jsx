@@ -1,4 +1,5 @@
 import Swal from 'sweetalert2';
+
 class DBAccess {
 	collectionsReducer;
 	collectionReference;
@@ -143,6 +144,7 @@ class DBAccess {
 					'confirmButtonText': 'Entendido'
 				}).then(() => {
 					this.updateLoggedUser(response);
+					return response
 				})
 			}
 		}).catch(error => {

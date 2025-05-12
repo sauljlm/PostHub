@@ -5,7 +5,7 @@ import DBAccess from "../utils/dbAccess";
 
 const Home = () => {
   const [postsItems, setPostsItems] = useState([]);
-  const [loggedUser, setLoggedUser] = useState([]);
+  //const [loggedUser, setLoggedUser] = useState([]);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -13,11 +13,13 @@ const Home = () => {
       let posts = await postDataDB.getPosts();
       posts.sort((a, b) => new Date(b.postDate) - new Date(a.postDate))
       await setPostsItems(posts);
-      await setLoggedUser(JSON.parse(sessionStorage.getItem("loggedUser")));
+      console.log(postsItems)
+      //await setLoggedUser(JSON.parse(sessionStorage.getItem("loggedUser")));
     };
 
     fetchPosts();
   }, []);
+
 
   return (
     <div className="content-wrapper">
@@ -31,7 +33,7 @@ const Home = () => {
               postDate={new Date(postItem.postDate)}
               imageURL={postItem.imageURL}
               description={postItem.postDescription}
-              userData={loggedUser}
+              userName={postItem.userName}
             />
           ))
         ) : (

@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import DBAccess from "../utils/dbAccess";
 import { useNavigate } from "react-router-dom";
+import { useContext } from 'react';
+import { UserContext } from '../context/UserContext';
 
 const LogIn = () => {
     const usersDataDB = new DBAccess();
     const navigate = useNavigate();
+    const { logIn } = useContext(UserContext);
 
     const [userData, serUserData] = useState({
         email: "",
@@ -31,7 +34,8 @@ const LogIn = () => {
                 formData.append(key, userData[key]);
             });
         
-            await usersDataDB.logIn(formData);
+            const loggedUser = await usersDataDB.logIn(formData);
+            await logIn(loggedUser);
             navigate("/");
         }
     };

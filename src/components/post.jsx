@@ -1,8 +1,22 @@
+import { useEffect, useState } from "react";
 import { timeAgo } from "../utils/formatter";
+import DBAccess from "../utils/dbAccess";
 
-const Post = ({public_id, title, postDate, imageURL, description, userData}) => {
+const Post = ({public_id, title, postDate, imageURL, description, userName}) => {
 
-    console.log(userData)
+    const [userData, setUserData] = useState(null);
+
+    useEffect(() => {
+      const fetchUser = async () => {
+        const postDataDB = new DBAccess();
+        const data = await postDataDB.getUserByUsername(userName);
+        setUserData(data);
+      };
+  
+      fetchUser();
+    }, [userName]);
+  
+    if (!userData) return <p>Cargando usuario...</p>;
 
     return (
         <article className="post">

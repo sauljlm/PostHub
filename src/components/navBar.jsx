@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useContext } from 'react';
+import { UserContext } from '../context/UserContext';
 
 const Navbar = () => {
-    const [currentUser, setCurrentUser] = useState(false);
     // const [activeLink, setActiveLink] = useState(0);
+    const { currentUser, logOut } = useContext(UserContext);
     const [hamburguerActive, setHamburguerActive] = useState(false);
 
     const pathname = window.location.pathname;
+    const navigate = useNavigate();
 
     const navigationLogged = [
         { title: "Inicio", path: "/" },
@@ -17,26 +21,15 @@ const Navbar = () => {
         { title: "Iniciar Sesion", path: "/log-in" },
         { title: "Registrarse", path: "/sign-up" }
     ];
-
-    useEffect(() => {
-        const handleStorageChange = () => {
-            const loggedUser = JSON.parse(window.sessionStorage.getItem('loggedUser'));
-            setCurrentUser(loggedUser);
-        };
-    
-        window.addEventListener('storage', handleStorageChange);
-    
-        // Ejecutar al cargar el componente
-        handleStorageChange();
-    
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
     
     const handleLinkClick = (idx) => {
         //setActiveLink(idx);
     };
+
+    const signOff = () => {
+        logOut();
+        navigate("/");
+    }
     
     const renderMenuItems = (navigationItems) => {
         return navigationItems.map((item, idx) => (
@@ -69,7 +62,7 @@ const Navbar = () => {
             </div>
             <div className="desktop-nav">
                 <nav className="menu">
-                    {currentUser &&<button className="header__sign-out">Cerrar Sesion</button>}
+                    {currentUser &&<button className="header__sign-out" onClick={signOff}>Cerrar Sesion</button>}
                     <ul className="menu__container">
                     {currentUser ? renderMenuItems(navigationLogged) : renderMenuItems(navigationMain)}
                     </ul>
