@@ -125,37 +125,40 @@ class DBAccess {
 	};
 
 	logIn = async (userData) => {
-		await fetch(`${this.url}/users/log-in`, {
-			method: 'POST',
-			body: userData
-		})
-		.then(response => response.json())
-		.then(response => {
+		try {
+			const responseRaw = await fetch(`${this.url}/users/log-in`, {
+				method: 'POST',
+				body: userData,
+			});
+			const response = await responseRaw.json();
+	
 			if (response.status === 500) {
 				Swal.fire({
-					'icon': 'warning',
-					'title': `${response.error}`,
-					'confirmButtonText': 'Entendido'
+					icon: 'warning',
+					title: `${response.error}`,
+					confirmButtonText: 'Entendido'
 				});
+				return null;
 			} else {
-				Swal.fire({
-					'icon': 'success',
-					'title': 'La sesión se realizó con éxito',
-					'confirmButtonText': 'Entendido'
-				}).then(() => {
-					this.updateLoggedUser(response);
-					return response
-				})
+				await Swal.fire({
+					icon: 'success',
+					title: 'La sesión se realizó con éxito',
+					confirmButtonText: 'Entendido'
+				});
+				this.updateLoggedUser(response);
+				return response;
 			}
-		}).catch(error => {
+		} catch (error) {
 			Swal.fire({
-				'icon': 'error',
-				'title': 'Error en la conexión',
-				'text': 'Hubo un problema al intentar iniciar sesión. Por favor, inténtalo de nuevo más tarde.',
-				'confirmButtonText': 'Entendido'
+				icon: 'error',
+				title: 'Error en la conexión',
+				text: 'Hubo un problema al intentar iniciar sesión. Por favor, inténtalo de nuevo más tarde.',
+				confirmButtonText: 'Entendido'
 			});
-		});
-	}
+			return null;
+		}
+	};
+	
 
 	createNewUser = async (newUser) => {
 		console.log(newUser);

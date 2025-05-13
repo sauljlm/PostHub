@@ -13,7 +13,6 @@ const Home = () => {
       let posts = await postDataDB.getPosts();
       posts.sort((a, b) => new Date(b.postDate) - new Date(a.postDate))
       await setPostsItems(posts);
-      console.log(postsItems)
       //await setLoggedUser(JSON.parse(sessionStorage.getItem("loggedUser")));
     };
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from 'react-router-dom';
 import { timeAgo } from "../utils/formatter";
 import DBAccess from "../utils/dbAccess";
 
@@ -28,7 +29,7 @@ const Post = ({public_id, title, postDate, imageURL, description, userName}) => 
                         className="post-header__profile-image"
                     />
                     <div className="post-header__info">
-                        <h2 className="post-header__username">{userData.userName}</h2>
+                        <h2 className="post-header__username"><Link to={`/${userName}`}>{userData.userName}</Link></h2>
                         <p className="post-header__location">Sedona, Arizona</p>
                     </div>
                 </div>

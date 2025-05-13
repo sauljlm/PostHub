@@ -15,7 +15,6 @@ export const UserProvider = ({ children }) => {
   const logIn = (user) => {
     sessionStorage.setItem('loggedUser', JSON.stringify(user));
     setCurrentUser(user);
-    console.log(user);
   };
 
   const logOut = () => {

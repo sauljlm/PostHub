@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from 'react';
 import { UserContext } from '../context/UserContext';
+import Swal from 'sweetalert2';
 
 const Navbar = () => {
     // const [activeLink, setActiveLink] = useState(0);
@@ -18,7 +19,7 @@ const Navbar = () => {
     ];
     const navigationMain = [
         { title: "Inicio", path: "/" },
-        { title: "Iniciar Sesion", path: "/log-in" },
+        { title: "Iniciar Sesión", path: "/log-in" },
         { title: "Registrarse", path: "/sign-up" }
     ];
     
@@ -29,6 +30,11 @@ const Navbar = () => {
     const signOff = () => {
         logOut();
         navigate("/");
+        Swal.fire({
+            icon: 'success',
+            title: 'La sesión se cerró con éxito',
+            confirmButtonText: 'Entendido'
+        });
     }
     
     const renderMenuItems = (navigationItems) => {

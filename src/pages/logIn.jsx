@@ -35,8 +35,10 @@ const LogIn = () => {
             });
         
             const loggedUser = await usersDataDB.logIn(formData);
-            await logIn(loggedUser);
-            navigate("/");
+            if (loggedUser) {
+                await logIn(loggedUser);
+                navigate("/");
+            }
         }
     };
 

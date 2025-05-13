@@ -1,46 +1,48 @@
 import React, { useState, useEffect } from "react";
 import Post from "../components/post";
-import { useParams } from 'react-router-dom';
 import DBAccess from "../utils/dbAccess";
 
-const Profile = () => {
-  const { username } = useParams();
+const MyProfile = () => {
   const [postsItems, setPostsItems] = useState([]);
-  const [userData, setUserData] = useState([]);
+  const [loggedUser, setLoggedUser] = useState([]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      if (!username) return;
+    const user = JSON.parse(sessionStorage.getItem("loggedUser"));
+    if (user) {
+      setLoggedUser(user);
+    }
+  }, []);
   
-      const dbAccess = new DBAccess();
-      let posts = await dbAccess.getPostsByUserName(username);
+  useEffect(() => {
+    const fetchPosts = async () => {
+      if (!loggedUser || !loggedUser.userName) return;
+  
+      const postDataDB = new DBAccess();
+      let posts = await postDataDB.getPostsByUserName(loggedUser.userName);
       posts.sort((a, b) => new Date(b.postDate) - new Date(a.postDate));
       setPostsItems(posts);
-
-      const userByUsername = await dbAccess.getUserByUsername(username)
-      setUserData(userByUsername);
     };
   
     fetchPosts();
-  }, []);
+  }, [loggedUser]);
 
   return (
     <div className="content-wrapper profile">
       <section className="profile__info-container">
         <img
-            src= {userData.imageURL}
-            alt={`${userData.userName} profile`}
+            src= {loggedUser.imageURL}
+            alt={`${loggedUser.userName} profile`}
             className="profile__info-profile-photo"
         />
         <div className="profile__info">
-          <h2 className="profile__info-username">{userData.userName}</h2>
+          <h2 className="profile__info-username">{loggedUser.userName}</h2>
           <ul className="profile__info-specs">
             <li>{"0"} <span>publicaciones</span></li>
             <li>{"0"} <span>seguidores</span></li>
             <li>{"0"} <span>seguidos</span></li>
           </ul>
-          <h3 className="profile__info-name">{userData.name}</h3>
-          <p className="profile__info-bio">{userData.bio}</p>
+          <h3 className="profile__info-name">{loggedUser.name}</h3>
+          <p className="profile__info-bio">{loggedUser.bio}</p>
         </div>
       </section>
       <section className="profile__post-container">
@@ -58,4 +60,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default MyProfile;
