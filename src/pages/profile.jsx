@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Post from "../components/post";
 import { useParams } from 'react-router-dom';
 import DBAccess from "../utils/dbAccess";
 
@@ -22,7 +21,7 @@ const Profile = () => {
     };
   
     fetchPosts();
-  }, []);
+  }, [username]);
 
   return (
     <div className="content-wrapper profile">
