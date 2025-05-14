@@ -5,20 +5,17 @@ import DBAccess from "../utils/dbAccess";
 
 const Home = () => {
   const [postsItems, setPostsItems] = useState([]);
-  //const [loggedUser, setLoggedUser] = useState([]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const postDataDB = new DBAccess();
-      let posts = await postDataDB.getPosts();
-      posts.sort((a, b) => new Date(b.postDate) - new Date(a.postDate))
-      await setPostsItems(posts);
-      //await setLoggedUser(JSON.parse(sessionStorage.getItem("loggedUser")));
-    };
-
-    fetchPosts();
+    getPosts();
   }, []);
 
+  const getPosts = async () => {
+    const postDataDB = new DBAccess();
+    let posts = await postDataDB.getPosts();
+    posts.sort((a, b) => new Date(b.postDate) - new Date(a.postDate))
+    await setPostsItems(posts);
+  }
 
   return (
     <div className="content-wrapper">
@@ -27,12 +24,8 @@ const Home = () => {
           postsItems.map((postItem) => (
             <Post
               key={postItem._id}
-              public_id={postItem.public_id}
-              title={postItem.postTitle}
-              postDate={new Date(postItem.postDate)}
-              imageURL={postItem.imageURL}
-              description={postItem.postDescription}
-              userName={postItem.userName}
+              postData={postItem}
+              onUpdatePost={getPosts}
             />
           ))
         ) : (
