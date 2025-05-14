@@ -24,8 +24,8 @@ const Post = ({postData, onUpdatePost}) => {
         const loggedUserData = await postDataDB.getLoggedUser();
         setLoggedUser(loggedUserData);
         
-        if (loggedUser && loggedUser.userName) {
-            const hasLiked = postData.likes.some(like => like.userName === loggedUser.userName);
+        if (loggedUserData && loggedUserData.userName) {
+            const hasLiked = postData.likes.some(like => like.userName === loggedUserData.userName);
             setLiked(hasLiked);
           } else {
             setLiked(false);
@@ -33,13 +33,13 @@ const Post = ({postData, onUpdatePost}) => {
       };
   
       fetchUser();
-    }, [postData, postDataDB, loggedUser]);
+    }, [postData, postDataDB]);
 
     const handleLike = async () => {
         if (loggedUser) {
+            setLiked(!liked);
             await postDataDB.postLike(postData._id, loggedUser.userName);
             onUpdatePost();
-            setLiked(!liked);
         } else {
 			Swal.fire({
 				'icon': 'error',
