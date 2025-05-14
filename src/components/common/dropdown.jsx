@@ -7,9 +7,10 @@ const Dropdown = ({
   defaultSelectedValue,
 }) => {
   const [selection, setSelection] = useState(defaultSelectedValue || options[0]);
+  
   useEffect(() => {
     setSelectedValue(options[0]);
-  }, [options[0]]);
+  }, [options, setSelectedValue]);
 
   useEffect(() => {
     setSelection(defaultSelectedValue);

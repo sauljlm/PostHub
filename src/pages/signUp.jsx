@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import DBAccess from "../utils/dbAccess";
 import resizeImage from "../utils/resizeImg";
-import Dropdown from "../components/common/dropdown";
 import TextInput from "../components/common/textInput";
 
 const SignUp = () => {
@@ -26,7 +25,6 @@ const SignUp = () => {
 
     const [previewImage, setPreviewImage] = useState(null);
     const [activeView, setActiveView] = useState(1);
-    const GENDER_OPTIONS = ["Masculino", "Femenino", "Otro"];
     
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
