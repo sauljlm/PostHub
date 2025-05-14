@@ -15,7 +15,7 @@ class DBAccess {
 
 	getLoggedUser = async () => {
 		const user = await JSON.parse(window.sessionStorage.getItem('loggedUser'));
-			return user;
+		return user;
 	};
 
 	getUsers = async () => {
@@ -317,6 +317,16 @@ class DBAccess {
 			});
 		});
 	};
+
+	postLike = async (postId, userName) => {
+		await fetch(`${this.url}/posts/toggle-like/${postId}`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({ userName: userName })
+		});
+	}
 
 	deletePost = async (id) => {
 		await fetch(`${this.url}/posts/delete-post/${id}`, {
