@@ -1,31 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useContext } from 'react';
+import { UserContext } from '../context/UserContext';
+import Swal from 'sweetalert2';
 
 const Navbar = () => {
-    // const [currentUser, setCurrentUser] = useState(false);
     // const [activeLink, setActiveLink] = useState(0);
-    const currentUser = false;
+    const { currentUser, logOut } = useContext(UserContext);
     const [hamburguerActive, setHamburguerActive] = useState(false);
 
     const pathname = window.location.pathname;
+    const navigate = useNavigate();
 
     const navigationLogged = [
         { title: "Inicio", path: "/" },
         { title: "Nuevo post", path: "/new-post" },
-        { title: "My perfil", path: "/our-customers" }
+        { title: "Mi perfil", path: "/mi-perfil" }
     ];
     const navigationMain = [
         { title: "Inicio", path: "/" },
-        { title: "Iniciar Sesion", path: "/log-in" },
+        { title: "Iniciar Sesión", path: "/log-in" },
         { title: "Registrarse", path: "/sign-up" }
     ];
-
-    // async function updateLoggedUser() {
-    //     currentUser = await JSON.parse(window.sessionStorage.getItem('loggedUser'));
-    // }
-
+    
     const handleLinkClick = (idx) => {
         //setActiveLink(idx);
     };
+
+    const signOff = () => {
+        logOut();
+        navigate("/");
+        Swal.fire({
+            icon: 'success',
+            title: 'La sesión se cerró con éxito',
+            confirmButtonText: 'Entendido'
+        });
+    }
     
     const renderMenuItems = (navigationItems) => {
         return navigationItems.map((item, idx) => (
@@ -58,7 +68,7 @@ const Navbar = () => {
             </div>
             <div className="desktop-nav">
                 <nav className="menu">
-                    <button className="header__sign-out">Cerrar Sesion</button>
+                    {currentUser &&<button className="header__sign-out" onClick={signOff}>Cerrar Sesion</button>}
                     <ul className="menu__container">
                     {currentUser ? renderMenuItems(navigationLogged) : renderMenuItems(navigationMain)}
                     </ul>

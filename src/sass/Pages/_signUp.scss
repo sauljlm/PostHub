@@ -13,7 +13,7 @@ label {
 }
 
 .form-container {
-	padding-top: 50px;
+	padding-top: 60px;
 	display: flex;
 	justify-content: center;
 }
@@ -34,21 +34,42 @@ label {
 }
 
 .form__button {
-	background-color: #83b106;
 	border-radius: 5px;
-	border: 2px solid #83b106;
-	color: #fff;
 	height: 50px;
 	padding: 10px 0;
 	transition: 0.5s;
 	width: 30%;
 }
 
-.form__button:hover,
-.form__button:active {
-	background-color: #000;
-	box-shadow: 0 6px 6px 0 rgba(0, 0, 0, 0.2);
-	transition: 0.5s;
+.form__button-cancel {
+	background-color: #ffffff;
+    border: 1px solid #dc2626;
+    color: #dc2626;
+
+	&:hover {
+		color: #ffffff;
+		background-color: #dc2626;
+		transition: 0.5s;
+	}
+	&:active {
+		box-shadow: 0 6px 6px 0 rgba(0, 0, 0, 0.2);
+		transition: 0.5s;
+	}
+}
+
+.form__button-save {
+	background-color: #83b106;
+	border: 2px solid #83b106;
+	color: #fff;
+
+	&:hover {
+		background-color: #000;
+		transition: 0.5s;
+	}
+	&:active {
+		box-shadow: 0 6px 6px 0 rgba(0, 0, 0, 0.2);
+		transition: 0.5s;
+	}
 }
 
 .form__item {  
@@ -78,6 +99,21 @@ label {
 	margin-bottom: 20px;
 }
 
+.form__item-select {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	background-color: #eee;
+	font-size: 16px;
+	appearance: none; /* Elimina el estilo por defecto */
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+	background-repeat: no-repeat;
+	background-position-x: 100%;
+	background-position-y: 50%;
+}
 
 .form__item-cont-file {
 	align-items: stretch;

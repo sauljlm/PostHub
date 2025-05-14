@@ -1,16 +1,51 @@
-const Post = ({public_id, title, postDate, imageURL, description, userName}) => {
+import { useEffect, useState } from "react";
+import { Link } from 'react-router-dom';
+import { timeAgo } from "../utils/formatter";
+import DBAccess from "../utils/dbAccess";
+
+import favorite from '../assets/favorite.svg';
+import favoriteFilled from '../assets/favorite-filled.svg';
+
+const Post = ({postData, onUpdatePost}) => {
+
+    const [userData, setUserData] = useState(null);
+    const [loggedUser, setLoggedUser] = useState(null);
+    const [liked, setLiked] = useState(false);
+    const postDataDB = new DBAccess();
+
+    useEffect(() => {
+      const fetchUser = async () => {
+        const userData = await postDataDB.getUserByUsername(postData.userName);
+        setUserData(userData);
+        
+        const loggedUserData = await postDataDB.getLoggedUser();
+        await setLoggedUser(loggedUserData);
+        const hasLiked = postData.likes.some(like => like.userName === loggedUserData.userName);
+        setLiked(hasLiked);
+      };
+  
+      fetchUser();
+    }, [postData]);
+  
+    if (!userData) return <p>Cargando usuario...</p>;
+
+    const handleLike = async () => {
+        await postDataDB.postLike(postData._id, loggedUser.userName);
+        onUpdatePost();
+        setLiked(!liked);
+    };
 
     return (
         <article className="post">
             <header className="post-header">
                 <div className="post-header__left">
                     <img
-                        src="https://placehold.co/40x40"
-                        alt={`${userName} profile`}
+                        src= {userData.imageURL}
+                        alt={`${userData.userName} profile`}
                         className="post-header__profile-image"
                     />
                     <div className="post-header__info">
-                        <h2 className="post-header__username">{userName}</h2>
+                        <h2 className="post-header__username"><Link to={`/${userData.userName}`}>{userData.userName}</Link></h2>
                         <p className="post-header__location">Sedona, Arizona</p>
                     </div>
                 </div>
@@ -18,19 +53,25 @@ const Post = ({public_id, title, postDate, imageURL, description, userName}) => 
             </header>
 
             <div className="post-asset-container">
-                <img src={imageURL} alt={title} className="post-asset" />
+                <img src={postData.imageURL} alt={postData.title} className="post-asset" />
             </div>
 
             <div className="post-content">
                 <div className="post-content__actions">
-                    <button className="post-content__like-btn">❤️</button>
-                    <button className="post-content__comment-btn">💬</button>
+                    <button
+                        className="post-content__like-btn"
+                        onClick={handleLike}
+                        style={{
+                            backgroundImage: `url(${liked ? favoriteFilled : favorite})`  
+                        }}
+                    />
+                    <button className="post-content__comment-btn"></button>
                 </div>
-                <p className="post-content__likes">444 Me gusta</p>
+                <p className="post-content__likes">{postData.likes.length} Me gusta</p>
                 <div className="post-content__description">
-                    <strong>{userName}</strong> {description}
+                    {postData.postDescription}
                 </div>
-                <p className="post-content__post-date">{new Date(postDate).toLocaleString()}</p>
+                <p className="post-content__post-date">{timeAgo(postData.postDate)}</p>
             </div>
 
             <div className="post-footer">

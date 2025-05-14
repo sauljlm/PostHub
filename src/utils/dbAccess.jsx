@@ -1,4 +1,5 @@
 import Swal from 'sweetalert2';
+
 class DBAccess {
 	collectionsReducer;
 	collectionReference;
@@ -14,7 +15,7 @@ class DBAccess {
 
 	getLoggedUser = async () => {
 		const user = await JSON.parse(window.sessionStorage.getItem('loggedUser'));
-			return user;
+		return user;
 	};
 
 	getUsers = async () => {
@@ -124,36 +125,40 @@ class DBAccess {
 	};
 
 	logIn = async (userData) => {
-		await fetch(`${this.url}/users/log-in`, {
-			method: 'POST',
-			body: userData
-		})
-		.then(response => response.json())
-		.then(response => {
+		try {
+			const responseRaw = await fetch(`${this.url}/users/log-in`, {
+				method: 'POST',
+				body: userData,
+			});
+			const response = await responseRaw.json();
+	
 			if (response.status === 500) {
 				Swal.fire({
-					'icon': 'warning',
-					'title': `${response.error}`,
-					'confirmButtonText': 'Entendido'
+					icon: 'warning',
+					title: `${response.error}`,
+					confirmButtonText: 'Entendido'
 				});
+				return null;
 			} else {
-				Swal.fire({
-					'icon': 'success',
-					'title': 'La sesión se realizó con éxito',
-					'confirmButtonText': 'Entendido'
-				}).then(() => {
-					this.updateLoggedUser(response);
-				})
+				await Swal.fire({
+					icon: 'success',
+					title: 'La sesión se realizó con éxito',
+					confirmButtonText: 'Entendido'
+				});
+				this.updateLoggedUser(response);
+				return response;
 			}
-		}).catch(error => {
+		} catch (error) {
 			Swal.fire({
-				'icon': 'error',
-				'title': 'Error en la conexión',
-				'text': 'Hubo un problema al intentar iniciar sesión. Por favor, inténtalo de nuevo más tarde.',
-				'confirmButtonText': 'Entendido'
+				icon: 'error',
+				title: 'Error en la conexión',
+				text: 'Hubo un problema al intentar iniciar sesión. Por favor, inténtalo de nuevo más tarde.',
+				confirmButtonText: 'Entendido'
 			});
-		});
-	}
+			return null;
+		}
+	};
+	
 
 	createNewUser = async (newUser) => {
 		console.log(newUser);
@@ -216,6 +221,38 @@ class DBAccess {
 			return null;  
 		}
 	};	
+
+	getPostsByUserName = async (userName) => {
+		console.log(userName)
+		try {
+			const response = await fetch(`${this.url}/posts/get-posts/${userName}`, {
+			  headers: {
+				'Cache-Control': 'no-cache'
+			  },
+			  method: 'GET',
+			});
+			const data = await response.json();
+			
+			if (data.status === 500) {
+			  Swal.fire({
+				icon: 'warning',
+				title: `${data.error}`,
+				confirmButtonText: 'Entendido'
+			  });
+			  return null;
+			} else {
+			  return data;
+			}
+		} catch (error) {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Error en la conexión',
+				'text': 'Hubo un problema al intentar obtener los posts. Por favor, inténtalo de nuevo más tarde.',
+				'confirmButtonText': 'Entendido'
+			});
+			return null;  
+		}
+	};
 
 	createNewPost = async (newPost) => {
 		await fetch(`${this.url}/posts/new-post`, {
@@ -280,6 +317,16 @@ class DBAccess {
 			});
 		});
 	};
+
+	postLike = async (postId, userName) => {
+		await fetch(`${this.url}/posts/toggle-like/${postId}`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({ userName: userName })
+		});
+	}
 
 	deletePost = async (id) => {
 		await fetch(`${this.url}/posts/delete-post/${id}`, {
