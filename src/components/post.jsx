@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Link } from 'react-router-dom';
 import { timeAgo } from "../utils/formatter";
 import DBAccess from "../utils/dbAccess";
+import Swal from 'sweetalert2';
 
 import favorite from '../assets/favorite.svg';
 import favoriteFilled from '../assets/favorite-filled.svg';
@@ -19,6 +20,9 @@ const Post = ({postData, onUpdatePost}) => {
       const fetchUser = async () => {
         const userData = await postDataDB.getUserByUsername(postData.userName);
         setUserData(userData);
+
+        const loggedUserData = await postDataDB.getLoggedUser();
+        setLoggedUser(loggedUserData);
         
         if (loggedUserData && loggedUserData.userName) {
             const hasLiked = postData.likes.some(like => like.userName === loggedUserData.userName);
@@ -30,14 +34,22 @@ const Post = ({postData, onUpdatePost}) => {
   
       fetchUser();
     }, [postData, postDataDB]);
-  
-    if (!userData) return <p>Cargando usuario...</p>;
 
     const handleLike = async () => {
-        await postDataDB.postLike(postData._id, loggedUser.userName);
-        onUpdatePost();
-        setLiked(!liked);
+        if (loggedUser) {
+            setLiked(!liked);
+            await postDataDB.postLike(postData._id, loggedUser.userName);
+            onUpdatePost();
+        } else {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Debes iniciar sesión',
+				'confirmButtonText': 'Entendido'
+			});
+        }
     };
+
+    if (!userData) return <p>Cargando usuario...</p>;
 
     return (
         <article className="post">
