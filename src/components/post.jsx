@@ -20,10 +20,12 @@ const Post = ({postData, onUpdatePost}) => {
         const userData = await postDataDB.getUserByUsername(postData.userName);
         setUserData(userData);
         
-        const loggedUserData = await postDataDB.getLoggedUser();
-        await setLoggedUser(loggedUserData);
-        const hasLiked = postData.likes.some(like => like.userName === loggedUserData.userName);
-        setLiked(hasLiked);
+        if (loggedUserData && loggedUserData.userName) {
+            const hasLiked = postData.likes.some(like => like.userName === loggedUserData.userName);
+            setLiked(hasLiked);
+          } else {
+            setLiked(false);
+          }
       };
   
       fetchUser();
