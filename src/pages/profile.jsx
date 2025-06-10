@@ -1,47 +1,78 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import DBAccess from "../utils/dbAccess";
+import useWindowSize from '../hooks/useWindowSize';
 
 const Profile = () => {
-  const { username } = useParams();
+  const { username } = useParams(); // puede ser undefined si no es ruta dinámica
   const [postsItems, setPostsItems] = useState([]);
-  const [userData, setUserData] = useState([]);
+  const [userData, setUserData] = useState(null);
+  const [loggedUser, setLoggedUser] = useState(null);
+  const { width } = useWindowSize();
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      if (!username) return;
-  
-      const dbAccess = new DBAccess();
-      let posts = await dbAccess.getPostsByUserName(username);
+    const fetchData = async () => {
+      const sessionUser = JSON.parse(sessionStorage.getItem("loggedUser"));
+      setLoggedUser(sessionUser);
+
+      const isMyProfile = !username || username === sessionUser?.userName;
+      const userToFetch = isMyProfile ? sessionUser.userName : username;
+
+      const db = new DBAccess();
+      const user = await db.getUserByUsername(userToFetch);
+      setUserData(user);
+
+      const posts = await db.getPostsByUserName(userToFetch);
       posts.sort((a, b) => new Date(b.postDate) - new Date(a.postDate));
       setPostsItems(posts);
-
-      const userByUsername = await dbAccess.getUserByUsername(username)
-      setUserData(userByUsername);
     };
-  
-    fetchPosts();
+
+    fetchData();
   }, [username]);
+
+  if (!userData) return <p>Cargando perfil...</p>;
+
+  //const isOwnProfile = loggedUser?.userName === userData.userName;
 
   return (
     <div className="content-wrapper profile">
-      <section className="profile__info-container">
-        <img
+      <section className="profile__info-box">
+        <div className="profile__info-container">
+          <img
             src= {userData.imageURL}
             alt={`${userData.userName} profile`}
             className="profile__info-profile-photo"
-        />
-        <div className="profile__info">
-          <h2 className="profile__info-username">{userData.userName}</h2>
-          <ul className="profile__info-specs">
-            <li>{"0"} <span>publicaciones</span></li>
-            <li>{"0"} <span>seguidores</span></li>
-            <li>{"0"} <span>seguidos</span></li>
-          </ul>
-          <h3 className="profile__info-name">{userData.name}</h3>
-          <p className="profile__info-bio">{userData.bio}</p>
+          />
+          <div className="profile__info">
+            <h2 className="profile__info-username">{userData.userName}</h2>
+            <ul className="profile__info-specs">
+              <li>{postsItems.length} <span>Publicaciones</span></li>
+              <li>{"0"} <span>Seguidores</span></li>
+              <li>{"0"} <span>Seguidos</span></li>
+            </ul>
+            {width > 768 && (
+              <>
+                <h3 className="profile__info-name">{loggedUser.name}</h3>
+                <p className="profile__info-bio">{loggedUser.bio}</p>
+              </>
+            )}
+          </div>
         </div>
+        {width < 768 && (
+          <>
+            <h3 className="profile__info-name">{loggedUser.name}</h3>
+            <p className="profile__info-bio">{loggedUser.bio}</p>
+          </>
+        )}
       </section>
+      {/* Si es su perfil, mostrar botón editar, si no, botón seguir */}
+      {/* <div className="profile__actions">
+        {isOwnProfile ? (
+          <button>Editar perfil</button>
+        ) : (
+          <button>Seguir</button>
+        )}
+      </div> */}
       <section className="profile__post-container">
         {Array.isArray(postsItems) && postsItems.length > 0 ? (
           postsItems.map((postItem) => (
