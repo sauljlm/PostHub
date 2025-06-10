@@ -4,7 +4,7 @@ import DBAccess from "../utils/dbAccess";
 import useWindowSize from '../hooks/useWindowSize';
 
 const Profile = () => {
-  const { username } = useParams(); // puede ser undefined si no es ruta dinámica
+  const { username } = useParams();
   const [postsItems, setPostsItems] = useState([]);
   const [userData, setUserData] = useState(null);
   const [loggedUser, setLoggedUser] = useState(null);
@@ -32,7 +32,7 @@ const Profile = () => {
 
   if (!userData) return <p>Cargando perfil...</p>;
 
-  //const isOwnProfile = loggedUser?.userName === userData.userName;
+  const isOwnProfile = loggedUser?.userName === userData.userName;
 
   return (
     <div className="content-wrapper profile">
@@ -52,20 +52,19 @@ const Profile = () => {
             </ul>
             {width > 768 && (
               <>
-                <h3 className="profile__info-name">{loggedUser.name}</h3>
-                <p className="profile__info-bio">{loggedUser.bio}</p>
+                <h3 className="profile__info-name">{userData.name}</h3>
+                <p className="profile__info-bio">{userData.bio}</p>
               </>
             )}
           </div>
         </div>
         {width < 768 && (
           <>
-            <h3 className="profile__info-name">{loggedUser.name}</h3>
-            <p className="profile__info-bio">{loggedUser.bio}</p>
+            <h3 className="profile__info-name">{userData.name}</h3>
+            <p className="profile__info-bio">{userData.bio}</p>
           </>
         )}
       </section>
-      {/* Si es su perfil, mostrar botón editar, si no, botón seguir */}
       {/* <div className="profile__actions">
         {isOwnProfile ? (
           <button>Editar perfil</button>
@@ -73,6 +72,13 @@ const Profile = () => {
           <button>Seguir</button>
         )}
       </div> */}
+      <div className="profile__actions">
+        {isOwnProfile ? (
+          <p>{userData.name}</p>
+        ) : (
+          <p>{userData.name}</p>
+        )}
+      </div>
       <section className="profile__post-container">
         {Array.isArray(postsItems) && postsItems.length > 0 ? (
           postsItems.map((postItem) => (
