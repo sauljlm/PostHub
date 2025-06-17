@@ -1,13 +1,10 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from 'react';
 import { UserContext } from '../context/UserContext';
 import Swal from 'sweetalert2';
 
 const Navbar = () => {
-    // const [activeLink, setActiveLink] = useState(0);
     const { currentUser, logOut } = useContext(UserContext);
-    const [hamburguerActive, setHamburguerActive] = useState(false);
 
     const pathname = window.location.pathname;
     const navigate = useNavigate();
@@ -51,30 +48,23 @@ const Navbar = () => {
     };
 
     return (
-        <header className="header">
-            <div className="mobile-nav">
-                <div className="hamburguer" onClick={() => setHamburguerActive(!hamburguerActive)}>
-                    <svg className={`hamburguer__btn ${hamburguerActive ? ' hamburguer__btn--active' : ''}`}>
-                        <path className="line line-top" d="M0,9h30"/>
-                        <path className="line line-center" d="M0,15h30"/>
-                        <path className="line line-bottom" d="M0,21h30"/>
-                    </svg>
+        <>
+            <header className="header">
+                <div className="nav-container top">
+                    <h1>Post Hub</h1>
+                    {currentUser && (
+                        <button className="header__sign-out" onClick={signOff}>
+                            Cerrar Sesión
+                        </button>
+                    )}
                 </div>
-                <nav className={`menu ${hamburguerActive ? ' menu--show' : ''}`}>
-                    <ul className="menu__container">
+            </header>
+            <nav className="nav-container bottom">
+                <ul className="menu__container">
                     {currentUser ? renderMenuItems(navigationLogged) : renderMenuItems(navigationMain)}
-                    </ul>
-                </nav>
-            </div>
-            <div className="desktop-nav">
-                <nav className="menu">
-                    {currentUser &&<button className="header__sign-out" onClick={signOff}>Cerrar Sesion</button>}
-                    <ul className="menu__container">
-                    {currentUser ? renderMenuItems(navigationLogged) : renderMenuItems(navigationMain)}
-                    </ul>
-                </nav>
-            </div>
-        </header>
+                </ul>
+            </nav>
+        </>
     );
 };
 
