@@ -14,6 +14,7 @@ const LogIn = () => {
         password: ""
     })
     const [errors, setErrors] = useState({});
+    const [restoreState, setRestoreState] = useState(false);
 
     const validateAvailableEmail = async (email) => {
         try {
@@ -62,6 +63,19 @@ const LogIn = () => {
         })
     }
 
+    const restorePassword = async () => {
+        const isEmailAvailable = await validateAvailableEmail(userData.email);
+        if (!isEmailAvailable) {
+            await usersDataDB.restorePassword(userData.email);
+            navigate("/");
+        } else {
+            setErrors({
+                ...errors,
+                email: 'Correo electronico no existe'
+            })
+        }
+    };
+
     return (
         <section className="content-wrapper">
             <article className="form-container">
@@ -83,30 +97,52 @@ const LogIn = () => {
                                 onChange={handleChange}
                             />
                         </div>
-                        <div className="form__item-container">
-                            <label for="userPassword">Contraseña</label>
-                            <input
-                                type="password"
-                                name="password"
-                                value={userData.password}
-                                required
-                                className="form__item"
-                                onChange={handleChange}
-                            />
-                        </div>
+                        {!restoreState && (
+                            <div className="form__item-container">
+                                <label for="userPassword">Contraseña</label>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    value={userData.password}
+                                    required
+                                    className="form__item"
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        )}
                         <div className="form__button-container">
                             <button 
                                 className="form__button form__button-cancel"
+                                onClick={() => {
+                                    restoreState &&
+                                    setRestoreState(!restoreState)
+                                }}
                             >
-                                Anterior
+                                Cancelar
                             </button>
                             <button 
                                 className="form__button form__button-save"
-                                onClick={saveData}
+                                onClick={() => {
+                                    restoreState ?
+                                    restorePassword()
+                                    :
+                                    saveData()
+
+                                }}
                             >
-                                Registrar
+                                {restoreState ? 'Restaurar' : 'Ingresar'}
                             </button>
                         </div>
+                        {!restoreState && (
+                            <button 
+                                className="form__button-restore"
+                                onClick={() => {
+                                    setRestoreState(!restoreState)
+                                }}
+                            >
+                                Restablecer contraseña
+                            </button>
+                        )}
                     </div>
                 </form>
             </article>

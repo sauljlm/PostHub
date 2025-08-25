@@ -29,7 +29,7 @@ const SignUp = () => {
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
         const reader = new FileReader();
-        const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+        const maxSizeInBytes = 1 * 1024 * 1024; // 2 MB
 
         if (selectedFile) {
             if (selectedFile.size > maxSizeInBytes) {
@@ -38,7 +38,6 @@ const SignUp = () => {
                     reader.onloadend = () => {
                         setPreviewImage(resizedFile);
                     };
-                    console.log("size " + resizedFile.size);
                 });
             } else {
                 setUserData({ ...userData, file: selectedFile });
@@ -329,7 +328,6 @@ const SignUp = () => {
                                 onClick={async () => {
                                     const isValid = await validateForm1();
                                     if (isValid) {
-                                        console.log("changing view")
                                         setActiveView(2);
                                     }
                                 }}

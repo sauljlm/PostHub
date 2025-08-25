@@ -1,0 +1,12 @@
+.form__button-restore {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    color: blue;
+    text-decoration: underline;
+    padding-top: 20px;
+
+    &:hover {
+        text-decoration: none;
+    }
+}
