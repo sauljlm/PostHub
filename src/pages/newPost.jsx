@@ -22,7 +22,7 @@ const NewPost = () => {
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
         const reader = new FileReader();
-        const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+        const maxSizeInBytes = 1 * 1024 * 1024; // 2 MB
 
         if (selectedFile) {
             if (selectedFile.size > maxSizeInBytes) {
@@ -31,7 +31,6 @@ const NewPost = () => {
                     reader.onloadend = () => {
                         setPreviewImage(resizedFile);
                     };
-                    console.log("size " + resizedFile.size);
                 });
             } else {
                 setPostData({ ...postData, file: selectedFile });
@@ -39,7 +38,6 @@ const NewPost = () => {
                     setPreviewImage(reader.result);
                 };
             }
-            console.log("size " + selectedFile.size);
             reader.readAsDataURL(selectedFile);
         }
     };

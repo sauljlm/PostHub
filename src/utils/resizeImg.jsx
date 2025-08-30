@@ -30,10 +30,27 @@ const resizeImage = (file, maxWidth, maxHeight, size, callback) => {
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
 
-            canvas.toBlob((blob) => {
-                const resizedFile = new File([blob], file.name, { type: file.type });
-                callback(resizedFile);
-            }, file.type, size); // Ajusta la calidad de la imagen si lo deseas (0.9 es el 90%)
+            // 👉 Comprimir iterativamente hasta que pese <= 1 MB
+            const compress = (quality) => {
+                canvas.toBlob(
+                  (blob) => {
+                    if (blob.size <= 1024 * 1024 || quality <= 0.1) {
+                      // ✅ si ya pesa <= 1MB o la calidad bajó demasiado, devolvemos el archivo
+                      const resizedFile = new File([blob], file.name.replace(/\.\w+$/, ".jpg"), {
+                        type: "image/jpeg",
+                      });
+                      callback(resizedFile);
+                    } else {
+                      // 🔁 si pesa más de 1MB, volvemos a intentar con menor calidad
+                      compress(quality - 0.1);
+                    }
+                  },
+                  "image/jpeg", // siempre convertir a JPEG
+                  quality
+                );
+            };
+
+            compress(0.9);
         };
     };
 };

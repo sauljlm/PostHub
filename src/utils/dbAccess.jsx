@@ -161,7 +161,6 @@ class DBAccess {
 	
 
 	createNewUser = async (newUser) => {
-		console.log(newUser);
 		await fetch(`${this.url}/users/new-user`, {
 			method: "POST",
 			body: newUser
@@ -186,6 +185,73 @@ class DBAccess {
 				'icon': 'error',
 				'title': 'Error en la conexión',
 				'text': 'Hubo un problema al intentar registrar el usuario. Por favor, inténtalo de nuevo más tarde.',
+				'confirmButtonText': 'Entendido'
+			});
+		});
+	};
+
+	restorePassword = async (userEmail) => {
+		await fetch(`${this.url}/users/restore-password`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				email: userEmail
+			}),
+		})
+		.then(response => response.json())
+		.then(response => {
+			if (response.status === 500) {
+				Swal.fire({
+					'icon': 'warning',
+					'title': `${response.error}`,
+					'confirmButtonText': 'Entendido'
+				});
+			} else {
+				Swal.fire({
+					'icon': 'success',
+					'title': 'Revisa tu email',
+					'text': 'Te hemos enviado un email para recuperar tu contraseña, revisa tu bandeja de entrada',
+					'confirmButtonText': 'Entendido'
+				})
+			}
+		}).catch(error => {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Error en la conexión',
+				'text': 'Hubo un problema al intentar restablecr la contraseña. Por favor, inténtalo de nuevo más tarde.',
+				'confirmButtonText': 'Entendido'
+			});
+		});
+	};
+
+	resetPassword = async (newPassword) => {
+		await fetch(`${this.url}/users/reset-password`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body:  newPassword
+		})
+		.then(response => response.json())
+		.then(response => {
+			if (response.status === 500) {
+				Swal.fire({
+					'icon': 'warning',
+					'title': `${response.error}`,
+					'confirmButtonText': 'Entendido'
+				});
+			} else {
+				Swal.fire({
+					'icon': 'success',
+					'title': 'La contraseña se actualizó con éxito',
+					'confirmButtonText': 'Entendido'
+				})
+			}
+		}).catch(error => {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Error en la conexión',
+				'text': 'Hubo un problema al intentar restablecer. Por favor, inténtalo de nuevo más tarde.',
 				'confirmButtonText': 'Entendido'
 			});
 		});
@@ -223,7 +289,6 @@ class DBAccess {
 	};	
 
 	getPostsByUserName = async (userName) => {
-		console.log(userName)
 		try {
 			const response = await fetch(`${this.url}/posts/get-posts/${userName}`, {
 			  headers: {

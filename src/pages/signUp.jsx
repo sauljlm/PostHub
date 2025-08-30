@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import DBAccess from "../utils/dbAccess";
 import resizeImage from "../utils/resizeImg";
 import TextInput from "../components/common/textInput";
+import { Eye, EyeClosed } from "lucide-react";
 
 const SignUp = () => {
     const usersDataDB = new DBAccess();
@@ -22,6 +23,7 @@ const SignUp = () => {
         userType: "User"
     })
     const [errors, setErrors] = useState({});
+    const [showPassword, setShowPassword] = useState(false);
 
     const [previewImage, setPreviewImage] = useState(null);
     const [activeView, setActiveView] = useState(1);
@@ -29,7 +31,7 @@ const SignUp = () => {
     const handleFileChange = (event) => {
         const selectedFile = event.target.files[0];
         const reader = new FileReader();
-        const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+        const maxSizeInBytes = 1 * 1024 * 1024; // 2 MB
 
         if (selectedFile) {
             if (selectedFile.size > maxSizeInBytes) {
@@ -38,7 +40,6 @@ const SignUp = () => {
                     reader.onloadend = () => {
                         setPreviewImage(resizedFile);
                     };
-                    console.log("size " + resizedFile.size);
                 });
             } else {
                 setUserData({ ...userData, file: selectedFile });
@@ -46,7 +47,6 @@ const SignUp = () => {
                     setPreviewImage(reader.result);
                 };
             }
-            console.log("size " + selectedFile.size);
             reader.readAsDataURL(selectedFile);
         }
     };
@@ -329,7 +329,6 @@ const SignUp = () => {
                                 onClick={async () => {
                                     const isValid = await validateForm1();
                                     if (isValid) {
-                                        console.log("changing view")
                                         setActiveView(2);
                                     }
                                 }}
@@ -391,19 +390,26 @@ const SignUp = () => {
                                 <path d="M39.5 75.3333C43.8197 75.3333 47.3214 71.8635 47.3214 67.5833C47.3214 63.3031 43.8197 59.8333 39.5 59.8333C35.1803 59.8333 31.6786 63.3031 31.6786 67.5833C31.6786 71.8635 35.1803 75.3333 39.5 75.3333ZM39.5 75.3333V85.6667M3 49.5H76V88.25C76 92.5302 72.4982 96 68.1786 96H10.8214C6.50177 96 3 92.5302 3 88.25V49.5ZM39.5 3C51.0191 3 60.3571 12.2528 60.3571 23.6667V49.5H18.6429V23.6667C18.6429 12.2528 27.9809 3 39.5 3Z" stroke="#000" stroke-width="5" stroke-linecap="round" />
                             </svg>
                         </div>
-                        <div className="form__item-container">
+                        <div className="form__item-container form__item-password">
                             <label for="userPassword">Contraseña</label>
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 name="password"
                                 value={userData.password}
                                 required
-                                className={`form__item ${errors.password ? 'form__item--error' : ''}`}
+                                className="form__item"
                                 onChange={handleChange}
                             />
-                        </div> 
+                            <button
+                                type="button"
+                                className="show-password-btn"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                            >
+                                {showPassword ? <Eye size={25} /> : <EyeClosed size={25} />}
+                            </button>
+                        </div>
 
-                        <div className="form__item-container">
+                        <div className="form__item-container form__item-password">
                             <label for="confirmUserPassword">Confirmar contraseña</label>
                             <input
                                 type="password"
@@ -413,6 +419,13 @@ const SignUp = () => {
                                 className={`form__item ${errors.confirmPassword ? 'form__item--error' : ''}`}
                                 onChange={handleChange}
                             />
+                            <button
+                                type="button"
+                                className="show-password-btn"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                            >
+                                {showPassword ? <Eye size={25} /> : <EyeClosed size={25} />}
+                            </button>
                         </div>
                         <div className="form__button-container">
                             <button 
