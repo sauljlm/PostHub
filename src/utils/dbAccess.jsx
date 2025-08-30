@@ -5,8 +5,8 @@ class DBAccess {
 	collectionReference;
 
 	constructor() {
-		//this.url = 'https://posthub-server.up.railway.app';
-		this.url = 'http://localhost:8080';
+		this.url = 'https://posthub-server.up.railway.app';
+		//this.url = 'http://localhost:8080';
 	}
 
 	updateLoggedUser = async (userdata) => {
@@ -227,7 +227,6 @@ class DBAccess {
 	};
 
 	resetPassword = async (newPassword) => {
-		console.log(newPassword)
 		await fetch(`${this.url}/users/reset-password`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -290,7 +289,6 @@ class DBAccess {
 	};	
 
 	getPostsByUserName = async (userName) => {
-		console.log(userName)
 		try {
 			const response = await fetch(`${this.url}/posts/get-posts/${userName}`, {
 			  headers: {

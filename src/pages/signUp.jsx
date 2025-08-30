@@ -47,7 +47,6 @@ const SignUp = () => {
                     setPreviewImage(reader.result);
                 };
             }
-            console.log("size " + selectedFile.size);
             reader.readAsDataURL(selectedFile);
         }
     };
