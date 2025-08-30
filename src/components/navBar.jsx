@@ -50,7 +50,7 @@ const Navbar = () => {
     return (
         <>
             <header className="header">
-                <div className="nav-container top">
+                <div className="nav-container nav-container__top">
                     <h1>Post Hub</h1>
                     {currentUser && (
                         <button className="header__sign-out" onClick={signOff}>
@@ -59,7 +59,7 @@ const Navbar = () => {
                     )}
                 </div>
             </header>
-            <nav className="nav-container bottom">
+            <nav className="nav-container nav-container__bottom">
                 <ul className="menu__container">
                     {currentUser ? renderMenuItems(navigationLogged) : renderMenuItems(navigationMain)}
                 </ul>

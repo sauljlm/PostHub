@@ -3,18 +3,19 @@ import DBAccess from "../utils/dbAccess";
 import { useNavigate } from "react-router-dom";
 import { useContext } from 'react';
 import { UserContext } from '../context/UserContext';
+import { Eye, EyeClosed } from "lucide-react";
 
 const LogIn = () => {
     const usersDataDB = new DBAccess();
     const navigate = useNavigate();
     const { logIn } = useContext(UserContext);
-
     const [userData, serUserData] = useState({
         email: "",
         password: ""
     })
     const [errors, setErrors] = useState({});
     const [restoreState, setRestoreState] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const validateAvailableEmail = async (email) => {
         try {
@@ -98,16 +99,23 @@ const LogIn = () => {
                             />
                         </div>
                         {!restoreState && (
-                            <div className="form__item-container">
+                            <div className="form__item-container form__item-password">
                                 <label for="userPassword">Contraseña</label>
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     name="password"
                                     value={userData.password}
                                     required
                                     className="form__item"
                                     onChange={handleChange}
                                 />
+                                <button
+                                    type="button"
+                                    className="show-password-btn"
+                                    onClick={() => setShowPassword((prev) => !prev)}
+                                >
+                                    {showPassword ? <Eye size={25} /> : <EyeClosed size={25} />}
+                                </button>
                             </div>
                         )}
                         <div className="form__button-container">
