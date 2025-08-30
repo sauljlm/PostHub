@@ -226,6 +226,38 @@ class DBAccess {
 		});
 	};
 
+	resetPassword = async (newPassword) => {
+		console.log(newPassword)
+		await fetch(`${this.url}/users/reset-password`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body:  newPassword
+		})
+		.then(response => response.json())
+		.then(response => {
+			if (response.status === 500) {
+				Swal.fire({
+					'icon': 'warning',
+					'title': `${response.error}`,
+					'confirmButtonText': 'Entendido'
+				});
+			} else {
+				Swal.fire({
+					'icon': 'success',
+					'title': 'La contraseña se actualizó con éxito',
+					'confirmButtonText': 'Entendido'
+				})
+			}
+		}).catch(error => {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Error en la conexión',
+				'text': 'Hubo un problema al intentar restablecer. Por favor, inténtalo de nuevo más tarde.',
+				'confirmButtonText': 'Entendido'
+			});
+		});
+	};
+
 	getPosts = async () => {
 		try {
 			const response = await fetch(`${this.url}/posts/get-posts`, {

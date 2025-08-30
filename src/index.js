@@ -8,6 +8,7 @@ import LogIn from "./pages/logIn";
 import NewPost from "./pages/newPost";
 import Profile from "./pages/profile";
 import Navbar from "./components/navBar";
+import ResetPassWord from "./pages/resetPassWord";
 import { UserProvider } from './context/UserContext';
 import './sass/style.scss';
 
@@ -26,6 +27,7 @@ root.render(
           <Route exact path="/new-post" element={<NewPost></NewPost>} />
           <Route exact path="/mi-perfil" element={<Profile></Profile>} />
           <Route exact path="/:username" element={<Profile />} />
+          <Route exact path="/reset-password/:token" element={<ResetPassWord />} />
         </Routes>
       </UserProvider>
     </QueryClientProvider>
