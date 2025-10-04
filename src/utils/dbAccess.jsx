@@ -5,8 +5,8 @@ class DBAccess {
 	collectionReference;
 
 	constructor() {
-		this.url = 'https://posthub-server.up.railway.app';
-		//this.url = 'http://localhost:8080';
+		//this.url = 'https://posthub-server.up.railway.app';
+		this.url = 'http://localhost:8080';
 	}
 
 	updateLoggedUser = async (userdata) => {
@@ -392,6 +392,38 @@ class DBAccess {
 			body: JSON.stringify({ userName: userName })
 		});
 	}
+
+	addComment = async (postId, userName, commentText) => {
+		await fetch(`${this.url}/posts/new-comment`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				postId: postId,          
+				userName: userName,      
+				commentText: commentText
+			})
+		})
+		.then(response => response.json())
+		.then(response => {
+			if (response.status === 500) {
+				Swal.fire({
+					icon: 'warning',
+					title: `${response.error}`,
+					confirmButtonText: 'Entendido'
+				});
+			}
+		})
+		.catch(error => {
+			Swal.fire({
+				icon: 'error',
+				title: 'Error en la conexión',
+				text: 'Hubo un problema al intentar comentar. Por favor, inténtalo de nuevo más tarde.',
+				confirmButtonText: 'Entendido'
+			});
+		});
+	};	
 
 	deletePost = async (id) => {
 		await fetch(`${this.url}/posts/delete-post/${id}`, {
