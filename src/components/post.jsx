@@ -114,7 +114,7 @@ const Post = ({postData, onUpdatePost}) => {
                 {showComments && (
                     <div className="post-content__comments-container">
                         <ul className="post-content__comments">
-                            {postData.comments.map((comment) => (
+                            {postData.comments.sort((a, b) => new Date(b.commentDate) - new Date(a.commentDate)).map((comment) => (
                                 <li 
                                     key={comment.id}
                                     className="post-content__comment"

@@ -5,8 +5,8 @@ class DBAccess {
 	collectionReference;
 
 	constructor() {
-		//this.url = 'https://posthub-server.up.railway.app';
-		this.url = 'http://localhost:8080';
+		this.url = 'https://posthub-server.up.railway.app';
+		//this.url = 'http://localhost:8080';
 	}
 
 	updateLoggedUser = async (userdata) => {

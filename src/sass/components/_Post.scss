@@ -171,13 +171,15 @@ border-top: 1px solid #dbdbdb;
 }
 
 .post-content__comments {
-    margin: 2%;
-    margin-bottom: 0;
+    margin: 0 2%;
     font-size: 14px;
+    max-height: 150px;
+    overflow: hidden;
+    overflow-y: auto;
 }
 
 .post-content__comment {
-    padding-bottom: 10px;
+    padding-top: 10px;
 }
 
 .post-content__comment-header {
