@@ -12,6 +12,8 @@ const Post = ({postData, onUpdatePost}) => {
     const [userData, setUserData] = useState(null);
     const [loggedUser, setLoggedUser] = useState(null);
     const [liked, setLiked] = useState(false);
+    const [commentText, setCommentText] = useState("");
+    const [showComments, setShowComments] = useState(false);
 
     // Memoriza la instancia de DBAccess para evitar que cambie en cada render
     const postDataDB = useMemo(() => new DBAccess(), []);
@@ -49,6 +51,20 @@ const Post = ({postData, onUpdatePost}) => {
         }
     };
 
+    const addComment = async () => {
+        if (loggedUser) {
+            await postDataDB.addComment(postData._id, loggedUser.userName, commentText);
+            setCommentText("");
+            onUpdatePost();
+        } else {
+			Swal.fire({
+				'icon': 'error',
+				'title': 'Debes iniciar sesión',
+				'confirmButtonText': 'Entendido'
+			});
+        }
+    }
+
     if (!userData) return <p>Cargando usuario...</p>;
 
     return (
@@ -81,18 +97,56 @@ const Post = ({postData, onUpdatePost}) => {
                             backgroundImage: `url(${liked ? favoriteFilled : favorite})`  
                         }}
                     />
-                    <button className="post-content__comment-btn"></button>
+                    <button className="post-content__comment-btn"
+                        onClick={() => setShowComments(prev => !prev)}
+                    >
+                        <span className="post-content__comment-badge">
+                        {postData.comments.length}
+                        </span>
+                    </button>
                 </div>
                 <p className="post-content__likes">{postData.likes.length} Me gusta</p>
                 <div className="post-content__description">
                     {postData.postDescription}
                 </div>
+
                 <p className="post-content__post-date">{timeAgo(postData.postDate)}</p>
+                {showComments && (
+                    <div className="post-content__comments-container">
+                        <ul className="post-content__comments">
+                            {postData.comments.sort((a, b) => new Date(b.commentDate) - new Date(a.commentDate)).map((comment) => (
+                                <li 
+                                    key={comment.id}
+                                    className="post-content__comment"
+                                >
+                                    <p className="post-content__comment-header">
+                                        <span className="post-content__comment-username">   {comment.userName}
+                                        </span>
+                                        <span className="post-content__comment-date">{timeAgo(comment.commentDate)}
+                                        </span>
+                                    </p>
+                                    <p>{comment.commentText}</p>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
 
             <div className="post-footer">
-                <input type="text" placeholder="Agrega un comentario..." className="post-footer__input" />
-                <button className="post-footer__submit-btn">Publicar</button>
+                <input 
+                    type="text" 
+                    placeholder="Agrega un comentario..." 
+                    className="post-footer__input" 
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            addComment();
+                        }
+                    }}
+                />
+                <button className="post-footer__submit-btn" onClick={addComment}>Comentar</button>
             </div>
         </article>
     );
