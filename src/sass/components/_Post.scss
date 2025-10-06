@@ -122,9 +122,31 @@
     transition: 0.5s;
 }
 
+.post-footer__submit-btn:hover {
+    transform: translateY(-1px);
+    transition: 0.2s;
+}
+
+.post-footer__submit-btn:active {
+    transform: translateY(2px);
+    transition: 0.2s;
+}
+
 .post-content__comment-btn {
     background-image: url('../../assets/comment.svg');
+    position: relative;
 }
+
+.post-content__comment-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50%;
+  }
 
 .post-footer {
 display: flex;
@@ -146,4 +168,29 @@ border-top: 1px solid #dbdbdb;
         font-weight: bold;
         cursor: pointer;
     }
+}
+
+.post-content__comments {
+    margin: 0 2%;
+    font-size: 14px;
+    max-height: 150px;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+.post-content__comment {
+    padding-top: 10px;
+}
+
+.post-content__comment-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.post-content__comment-username {
+    font-weight: bold;
+}
+
+.post-content__comment-date {
+    color: #4F4F4F;
 }
