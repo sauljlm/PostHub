@@ -6,6 +6,66 @@ import Swal from 'sweetalert2';
 
 import favorite from '../assets/favorite.svg';
 import favoriteFilled from '../assets/favorite-filled.svg';
+import { getPostMedia } from '../utils/postMedia';
+
+const PostMediaCarousel = ({ media, alt }) => {
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    if (media.length === 0) return null;
+
+    const goTo = (index) => {
+        setActiveIndex((index + media.length) % media.length);
+    };
+
+    const activeItem = media[activeIndex];
+
+    return (
+        <div className="post-asset-container">
+            {activeItem.type === 'video' ? (
+                <video
+                    key={activeItem.url}
+                    src={activeItem.url}
+                    className="post-asset"
+                    controls
+                />
+            ) : (
+                <img key={activeItem.url} src={activeItem.url} alt={alt} className="post-asset" />
+            )}
+
+            {media.length > 1 && (
+                <>
+                    <button
+                        type="button"
+                        className="post-asset-arrow post-asset-arrow--prev"
+                        onClick={() => goTo(activeIndex - 1)}
+                        aria-label="Anterior"
+                    >
+                        ‹
+                    </button>
+                    <button
+                        type="button"
+                        className="post-asset-arrow post-asset-arrow--next"
+                        onClick={() => goTo(activeIndex + 1)}
+                        aria-label="Siguiente"
+                    >
+                        ›
+                    </button>
+                    <div className="post-asset-dots">
+                        {media.map((item, index) => (
+                            <button
+                                type="button"
+                                key={item.url}
+                                className={`post-asset-dot ${index === activeIndex ? 'post-asset-dot--active' : ''}`}
+                                onClick={() => goTo(index)}
+                                aria-label={`Ir al elemento ${index + 1}`}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
 
 const Post = ({postData, onUpdatePost}) => {
 
@@ -84,9 +144,7 @@ const Post = ({postData, onUpdatePost}) => {
                 <div className="post-header__options">...</div>
             </header>
 
-            <div className="post-asset-container">
-                <img src={postData.imageURL} alt={postData.title} className="post-asset" />
-            </div>
+            <PostMediaCarousel media={getPostMedia(postData)} alt={postData.postTitle} />
 
             <div className="post-content">
                 <div className="post-content__actions">

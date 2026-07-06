@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import DBAccess from "../utils/dbAccess";
 import useWindowSize from '../hooks/useWindowSize';
+import { getPostMedia } from '../utils/postMedia';
 
 const Profile = () => {
   const { username } = useParams();
@@ -81,11 +82,27 @@ const Profile = () => {
       </div>
       <section className="profile__post-container">
         {Array.isArray(postsItems) && postsItems.length > 0 ? (
-          postsItems.map((postItem) => (
-            <div className="profile__post-asset-container">
-              <img src={postItem.imageURL} alt={postItem.postTitle} className="profile__post-asset" />
-            </div>
-          ))
+          postsItems.map((postItem) => {
+            const media = getPostMedia(postItem);
+            const cover = media[0];
+
+            return (
+              <div className="profile__post-asset-container" key={postItem._id}>
+                {cover ? (
+                  cover.type === 'video' ? (
+                    <video src={cover.url} className="profile__post-asset" muted />
+                  ) : (
+                    <img src={cover.url} alt={postItem.postTitle} className="profile__post-asset" />
+                  )
+                ) : null}
+                {media.length > 1 && (
+                  <span className="profile__post-asset-badge" aria-label={`${media.length} elementos`}>
+                    {media.length}
+                  </span>
+                )}
+              </div>
+            );
+          })
         ) : (
           <p>No hay publicaciones disponibles</p>
         )}
