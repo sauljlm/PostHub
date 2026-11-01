@@ -5,8 +5,12 @@ class DBAccess {
 	collectionReference;
 
 	constructor() {
-		//this.url = 'https://posthub-server.up.railway.app';
-		this.url = 'http://localhost:8080';
+		this.url = (
+			process.env.REACT_APP_API_URL ||
+			(process.env.NODE_ENV === 'production'
+				? 'https://posthub-server.up.railway.app'
+				: 'http://localhost:8080')
+		).replace(/\/+$/, '');
 	}
 
 	updateLoggedUser = async (userdata) => {

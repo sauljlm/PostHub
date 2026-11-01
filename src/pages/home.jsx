@@ -12,9 +12,10 @@ const Home = () => {
 
   const getPosts = async () => {
     const postDataDB = new DBAccess();
-    let posts = await postDataDB.getPosts();
-    posts.sort((a, b) => new Date(b.postDate) - new Date(a.postDate))
-    await setPostsItems(posts);
+    const posts = await postDataDB.getPosts();
+    setPostsItems(Array.isArray(posts)
+      ? [...posts].sort((a, b) => new Date(b.postDate) - new Date(a.postDate))
+      : []);
   }
 
   return (
